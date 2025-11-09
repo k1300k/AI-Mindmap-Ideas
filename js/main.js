@@ -9,7 +9,11 @@ const state = {
     connectingMode: false,
     connectingFromNode: null,
     addingChildMode: false,
-    parentNodeForNewChild: null
+    parentNodeForNewChild: null,
+    zoom: 1.0,
+    minZoom: 0.25,
+    maxZoom: 3.0,
+    zoomStep: 0.1
 };
 
 // DOM 요소
@@ -295,13 +299,27 @@ function attachEventListeners() {
     // 키보드 단축키
     document.addEventListener('keydown', (e) => {
         if (e.key === 'n' || e.key === 'N') {
-            if (!e.target.closest('.node-content')) {
+            if (!e.target.closest('.node-content') && !e.target.closest('input') && !e.target.closest('textarea')) {
                 addNewNode();
             }
         }
         
         if (e.key === 'Delete' && state.selectedNode) {
             deleteNode(state.selectedNode);
+        }
+        
+        // 줌 단축키 (Ctrl/Cmd + +, -, 0)
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            if (e.key === '=' || e.key === '+') {
+                e.preventDefault();
+                zoomIn();
+            } else if (e.key === '-' || e.key === '_') {
+                e.preventDefault();
+                zoomOut();
+            } else if (e.key === '0') {
+                e.preventDefault();
+                zoomReset();
+            }
         }
         
         if (e.key === 'Escape') {
@@ -368,6 +386,14 @@ function attachEventListeners() {
     // 개발 이력 모달
     document.getElementById('showVersionHistoryBtn').addEventListener('click', showVersionHistoryModal);
     document.getElementById('closeVersionHistoryModal').addEventListener('click', closeVersionHistoryModal);
+    
+    // 줌 컨트롤
+    document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+    document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+    document.getElementById('zoomResetBtn').addEventListener('click', zoomReset);
+    
+    // 터치 제스처 및 마우스 휠 줌 초기화
+    initializeTouchGestures();
     
     // 윈도우 리사이즈
     window.addEventListener('resize', updateConnections);
@@ -1066,4 +1092,76 @@ function showVersionHistoryModal() {
 function closeVersionHistoryModal() {
     const versionHistoryModal = document.getElementById('versionHistoryModal');
     versionHistoryModal.classList.remove('active');
+}
+
+// 줌 기능
+function setZoom(newZoom) {
+    state.zoom = Math.max(state.minZoom, Math.min(state.maxZoom, newZoom));
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    canvasWrapper.style.transform = `scale(${state.zoom})`;
+    
+    // 줌 레벨 표시 업데이트
+    const zoomLevel = document.getElementById('zoomLevel');
+    if (zoomLevel) {
+        zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
+    }
+}
+
+function zoomIn() {
+    setZoom(state.zoom + state.zoomStep);
+}
+
+function zoomOut() {
+    setZoom(state.zoom - state.zoomStep);
+}
+
+function zoomReset() {
+    setZoom(1.0);
+}
+
+// 터치 제스처 지원 (핀치 줌)
+function initializeTouchGestures() {
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    let touchStartDistance = 0;
+    let touchStartZoom = 1;
+    
+    canvasWrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            // 두 손가락 터치 시작
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            touchStartDistance = Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+            );
+            touchStartZoom = state.zoom;
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    canvasWrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            // 핀치 줌
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const currentDistance = Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+            );
+            
+            const scale = currentDistance / touchStartDistance;
+            const newZoom = touchStartZoom * scale;
+            setZoom(newZoom);
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // 마우스 휠 줌 (데스크톱)
+    canvasWrapper.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const delta = -e.deltaY / 1000;
+            setZoom(state.zoom + delta);
+        }
+    }, { passive: false });
 }

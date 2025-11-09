@@ -2,7 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>IdeaFlow - 마인드맵 대시보드</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,13 +22,13 @@
             </h1>
             <div class="header-actions">
                 <button class="btn btn-secondary" id="saveBtn">
-                    <i class="fas fa-save"></i> JSON 저장
+                    <i class="fas fa-save"></i> <span>JSON 저장</span>
                 </button>
                 <button class="btn btn-secondary" id="loadBtn">
-                    <i class="fas fa-folder-open"></i> JSON 불러오기
+                    <i class="fas fa-folder-open"></i> <span>JSON 불러오기</span>
                 </button>
                 <button class="btn btn-primary" id="exportBtn">
-                    <i class="fas fa-download"></i> PNG 내보내기
+                    <i class="fas fa-download"></i> <span>PNG 내보내기</span>
                 </button>
             </div>
         </div>
@@ -82,7 +84,7 @@
 
     <!-- 메인 캔버스 -->
     <main class="main-container">
-        <div class="canvas-wrapper">
+        <div class="canvas-wrapper" id="canvasWrapper">
             <div class="canvas-title">
                 <h2 id="canvasTitle" contenteditable="true">질문으로 접근하는 생활형 불편 대응 아이디어</h2>
             </div>
@@ -93,6 +95,20 @@
             <div id="nodesContainer" class="nodes-container">
                 <!-- 노드들이 여기에 추가됩니다 -->
             </div>
+        </div>
+        
+        <!-- 줌 컨트롤 -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomInBtn" title="확대 (Ctrl + +)">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="zoom-btn" id="zoomResetBtn" title="원래 크기 (Ctrl + 0)">
+                <i class="fas fa-compress"></i>
+            </button>
+            <button class="zoom-btn" id="zoomOutBtn" title="축소 (Ctrl + -)">
+                <i class="fas fa-minus"></i>
+            </button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
         </div>
     </main>
 
