@@ -801,17 +801,38 @@ function autoLoadFromLocalStorage() {
 
 // PNG 내보내기
 function exportToPNG() {
-    showToast('PNG 내보내기 기능은 html2canvas 라이브러리가 필요합니다');
+    if (typeof html2canvas === 'undefined') {
+        showToast('html2canvas 라이브러리 로딩 중...');
+        return;
+    }
     
-    // 실제 구현을 위해서는 html2canvas 라이브러리 추가 필요
-    // <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    // 
-    // html2canvas(document.querySelector('.canvas-wrapper')).then(canvas => {
-    //     const link = document.createElement('a');
-    //     link.download = 'mindmap.png';
-    //     link.href = canvas.toDataURL();
-    //     link.click();
-    // });
+    showToast('PNG 내보내기 중...');
+    
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    
+    // html2canvas 옵션 설정
+    html2canvas(canvasWrapper, {
+        backgroundColor: '#f8fafc',
+        scale: 2, // 고해상도
+        logging: false,
+        useCORS: true,
+        allowTaint: true
+    }).then(canvas => {
+        // 타임스탬프 생성
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `mindmap_${timestamp}.png`;
+        
+        // PNG 다운로드
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        showToast('PNG 파일이 다운로드되었습니다');
+    }).catch(error => {
+        console.error('PNG 내보내기 오류:', error);
+        showToast('PNG 내보내기에 실패했습니다');
+    });
 }
 
 // 템플릿 로드
@@ -826,7 +847,7 @@ function loadTemplate(type) {
     
     switch(type) {
         case 'default':
-            document.getElementById('canvasTitle').textContent = '질문으로 접근하는 생활형 블핀 대응 아이디어';
+            document.getElementById('canvasTitle').textContent = '질문으로 접근하는 생활형 불편 대응 아이디어';
             initializeDefaultMap();
             break;
             
