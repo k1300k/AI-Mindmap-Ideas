@@ -182,6 +182,7 @@ body {
     margin-left: 280px;
     padding: 1rem;
     height: calc(100vh - 5.5rem);
+    overflow: hidden;
 }
 
 .canvas-wrapper {
@@ -190,7 +191,7 @@ body {
     box-shadow: var(--shadow-xl);
     height: 100%;
     position: relative;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .canvas-title {
@@ -927,53 +928,67 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    z-index: 900;
-    background: rgba(255, 255, 255, 0.95);
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     padding: 0.75rem;
     border-radius: 1rem;
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid rgba(59, 130, 246, 0.2);
 }
 
 .zoom-btn {
-    width: 48px;
-    height: 48px;
-    border: none;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--gray-200);
     border-radius: 0.75rem;
     background: white;
     color: var(--primary-color);
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
 }
 
 .zoom-btn:hover {
     background: var(--primary-color);
     color: white;
+    border-color: var(--primary-color);
     transform: scale(1.05);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .zoom-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .zoom-level {
     text-align: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--gray-600);
-    padding: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    padding: 0.375rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
 }
 
-/* 캔버스 래퍼 줌 기능 */
-.canvas-wrapper {
+/* 캔버스 내부 컨텐츠에 줌 적용 */
+.nodes-container {
     transform-origin: center center;
-    transition: transform 0.2s ease-out;
+    transition: transform 0.15s ease-out;
+}
+
+.canvas {
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
 }
 
 /* 스크롤바 스타일 */
@@ -997,6 +1012,13 @@ body {
 
 /* 모바일 최적화 */
 @media (max-width: 768px) {
+    body {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+    }
+    
     .header-content {
         padding: 0.75rem 1rem;
     }
@@ -1034,6 +1056,7 @@ body {
         transform: translateY(100%);
         transition: transform 0.3s ease;
         border-radius: 1rem 1rem 0 0;
+        z-index: 999;
     }
     
     .toolbar.mobile-open {
@@ -1042,7 +1065,16 @@ body {
     
     .main-container {
         margin-left: 0;
-        padding-top: 60px;
+        margin-top: 60px;
+        padding: 0.5rem;
+        height: calc(100vh - 60px);
+        overflow: hidden;
+    }
+    
+    .canvas-wrapper {
+        border-radius: 0.5rem;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .zoom-controls {
@@ -1050,25 +1082,30 @@ body {
         right: 1rem;
         padding: 0.5rem;
         gap: 0.375rem;
+        border-width: 1px;
     }
     
     .zoom-btn {
-        width: 44px;
-        height: 44px;
-        font-size: 1.1rem;
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+        border-width: 1px;
     }
     
     .zoom-level {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
+        padding: 0.3rem;
     }
     
     .canvas-title h2 {
-        font-size: 1.25rem;
-        padding: 1rem;
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
     }
     
     .node {
-        touch-action: none;
+        touch-action: pan-x pan-y;
+        -webkit-user-select: none;
+        user-select: none;
     }
     
     /* 모달 최적화 */
@@ -1083,6 +1120,16 @@ body {
     .modal-large {
         width: 95%;
         max-width: 95%;
+    }
+    
+    /* 컨텍스트 메뉴 터치 최적화 */
+    .context-menu {
+        touch-action: manipulation;
+    }
+    
+    .context-menu-item {
+        min-height: 48px;
+        font-size: 0.95rem;
     }
 }
 

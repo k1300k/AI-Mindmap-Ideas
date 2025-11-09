@@ -224,7 +224,11 @@ function updateConnections() {
 
 // 노드 이벤트 리스너
 function attachNodeEventListeners(node) {
-    // 드래그 시작
+    let touchStartTime = 0;
+    let touchStartPos = { x: 0, y: 0 };
+    let isTouchDragging = false;
+    
+    // 마우스 드래그 시작
     node.addEventListener('mousedown', (e) => {
         if (e.target.closest('.node-link')) return;
         if (e.target.contentEditable === 'true') return;
@@ -237,6 +241,71 @@ function attachNodeEventListeners(node) {
         state.dragOffset.y = e.clientY - rect.top;
         
         e.preventDefault();
+    });
+    
+    // 터치 시작 (모바일)
+    node.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            touchStartTime = Date.now();
+            touchStartPos.x = e.touches[0].clientX;
+            touchStartPos.y = e.touches[0].clientY;
+            
+            const rect = node.getBoundingClientRect();
+            state.dragOffset.x = e.touches[0].clientX - rect.left;
+            state.dragOffset.y = e.touches[0].clientY - rect.top;
+        }
+    }, { passive: true });
+    
+    // 터치 이동 (모바일 드래그)
+    node.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && !state.draggingNode) {
+            const moveDistance = Math.hypot(
+                e.touches[0].clientX - touchStartPos.x,
+                e.touches[0].clientY - touchStartPos.y
+            );
+            
+            // 10px 이상 이동하면 드래그 모드
+            if (moveDistance > 10) {
+                isTouchDragging = true;
+                state.draggingNode = node;
+                node.classList.add('dragging');
+            }
+        }
+        
+        if (state.draggingNode === node && e.touches.length === 1) {
+            const x = e.touches[0].clientX - state.dragOffset.x;
+            const y = e.touches[0].clientY - state.dragOffset.y;
+            
+            node.style.left = `${x}px`;
+            node.style.top = `${y}px`;
+            
+            updateNodePosition(node, x, y);
+            updateConnections();
+        }
+    }, { passive: false });
+    
+    // 터치 종료
+    node.addEventListener('touchend', (e) => {
+        const touchDuration = Date.now() - touchStartTime;
+        
+        // 짧은 탭 (300ms 이하) & 이동 없음 = 편집 모달
+        if (touchDuration < 300 && !isTouchDragging) {
+            state.selectedNode = node;
+            // 더블탭 감지는 나중에 구현 가능
+        }
+        
+        // 긴 탭 (500ms 이상) = 컨텍스트 메뉴
+        if (touchDuration > 500 && !isTouchDragging) {
+            state.selectedNode = node;
+            showContextMenu(touchStartPos.x, touchStartPos.y);
+        }
+        
+        if (state.draggingNode === node) {
+            node.classList.remove('dragging');
+            state.draggingNode = null;
+        }
+        
+        isTouchDragging = false;
     });
     
     // 더블클릭 편집 - 편집 모달 열기
@@ -1097,14 +1166,26 @@ function closeVersionHistoryModal() {
 // 줌 기능
 function setZoom(newZoom) {
     state.zoom = Math.max(state.minZoom, Math.min(state.maxZoom, newZoom));
-    const canvasWrapper = document.getElementById('canvasWrapper');
-    canvasWrapper.style.transform = `scale(${state.zoom})`;
+    
+    // 노드 컨테이너와 캔버스에 줌 적용
+    const nodesContainer = document.getElementById('nodesContainer');
+    const canvas = document.getElementById('canvas');
+    
+    if (nodesContainer) {
+        nodesContainer.style.transform = `scale(${state.zoom})`;
+    }
+    if (canvas) {
+        canvas.style.transform = `scale(${state.zoom})`;
+    }
     
     // 줌 레벨 표시 업데이트
     const zoomLevel = document.getElementById('zoomLevel');
     if (zoomLevel) {
         zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
     }
+    
+    // 연결선 업데이트
+    updateConnections();
 }
 
 function zoomIn() {
@@ -1124,10 +1205,12 @@ function initializeTouchGestures() {
     const canvasWrapper = document.getElementById('canvasWrapper');
     let touchStartDistance = 0;
     let touchStartZoom = 1;
+    let isPinching = false;
     
     canvasWrapper.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
-            // 두 손가락 터치 시작
+            // 두 손가락 터치 시작 - 핀치 줌 모드
+            isPinching = true;
             const touch1 = e.touches[0];
             const touch2 = e.touches[1];
             touchStartDistance = Math.hypot(
@@ -1136,12 +1219,17 @@ function initializeTouchGestures() {
             );
             touchStartZoom = state.zoom;
             e.preventDefault();
+        } else {
+            isPinching = false;
         }
     }, { passive: false });
     
     canvasWrapper.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2) {
+        if (e.touches.length === 2 && isPinching) {
             // 핀치 줌
+            e.preventDefault();
+            e.stopPropagation();
+            
             const touch1 = e.touches[0];
             const touch2 = e.touches[1];
             const currentDistance = Math.hypot(
@@ -1149,11 +1237,22 @@ function initializeTouchGestures() {
                 touch2.clientY - touch1.clientY
             );
             
-            const scale = currentDistance / touchStartDistance;
-            const newZoom = touchStartZoom * scale;
-            setZoom(newZoom);
-            e.preventDefault();
+            if (touchStartDistance > 0) {
+                const scale = currentDistance / touchStartDistance;
+                const newZoom = touchStartZoom * scale;
+                setZoom(newZoom);
+            }
         }
+    }, { passive: false });
+    
+    canvasWrapper.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            isPinching = false;
+        }
+    }, { passive: false });
+    
+    canvasWrapper.addEventListener('touchcancel', () => {
+        isPinching = false;
     }, { passive: false });
     
     // 마우스 휠 줌 (데스크톱)
@@ -1164,4 +1263,12 @@ function initializeTouchGestures() {
             setZoom(state.zoom + delta);
         }
     }, { passive: false });
+    
+    // 더블탭 줌 방지 (브라우저 기본 동작)
+    canvasWrapper.addEventListener('dblclick', (e) => {
+        // 노드가 아닌 경우에만 줌 리셋
+        if (!e.target.closest('.node')) {
+            e.preventDefault();
+        }
+    });
 }
