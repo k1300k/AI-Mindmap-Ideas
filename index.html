@@ -76,6 +76,9 @@
                 <p><kbd>더블클릭</kbd> 노드 편집</p>
                 <p><kbd>우클릭</kbd> 메뉴 열기</p>
                 <p><kbd>드래그</kbd> 노드 이동</p>
+                <p><kbd>Space</kbd> 캔버스 이동 모드</p>
+                <p><kbd>Shift+방향키</kbd> 캔버스 이동</p>
+                <p><kbd>Ctrl + / -</kbd> 줌 인/아웃</p>
                 <p><kbd>Del</kbd> 삭제</p>
                 <p><kbd>Esc</kbd> 작업 취소</p>
             </div>
@@ -108,7 +111,32 @@
             <button class="zoom-btn" id="zoomOutBtn" title="축소 (Ctrl + -)">
                 <i class="fas fa-minus"></i>
             </button>
+            <div class="zoom-divider"></div>
+            <button class="zoom-btn" id="panModeBtn" title="캔버스 이동 모드 (Space 키)">
+                <i class="fas fa-hand-paper"></i>
+            </button>
             <div class="zoom-level" id="zoomLevel">100%</div>
+        </div>
+        
+        <!-- 패닝 네비게이션 -->
+        <div class="pan-controls" id="panControls">
+            <button class="pan-btn" id="panUpBtn" title="위로 이동">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <div class="pan-middle">
+                <button class="pan-btn" id="panLeftBtn" title="왼쪽으로 이동">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="pan-btn pan-center" id="panCenterBtn" title="중앙으로 이동">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                </button>
+                <button class="pan-btn" id="panRightBtn" title="오른쪽으로 이동">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <button class="pan-btn" id="panDownBtn" title="아래로 이동">
+                <i class="fas fa-chevron-down"></i>
+            </button>
         </div>
     </main>
 

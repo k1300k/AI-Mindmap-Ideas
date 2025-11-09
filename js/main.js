@@ -13,7 +13,11 @@ const state = {
     zoom: 1.0,
     minZoom: 0.25,
     maxZoom: 3.0,
-    zoomStep: 0.1
+    zoomStep: 0.1,
+    panOffset: { x: 0, y: 0 },
+    isPanning: false,
+    panStart: { x: 0, y: 0 },
+    spaceKeyPressed: false
 };
 
 // DOM 요소
@@ -326,8 +330,35 @@ function attachNodeEventListeners(node) {
 
 // 전역 이벤트 리스너
 function attachEventListeners() {
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    
+    // 캔버스 패닝 (Space 키 + 드래그 또는 패닝 모드)
+    canvasWrapper.addEventListener('mousedown', (e) => {
+        // 노드나 다른 요소를 클릭한 경우 제외
+        if (e.target.closest('.node') || e.target.closest('.canvas-title')) {
+            return;
+        }
+        
+        // Space 키가 눌려있거나 패닝 모드일 때
+        if (state.spaceKeyPressed) {
+            state.isPanning = true;
+            state.panStart.x = e.clientX - state.panOffset.x;
+            state.panStart.y = e.clientY - state.panOffset.y;
+            e.preventDefault();
+        }
+    });
+    
     // 드래그 중
     document.addEventListener('mousemove', (e) => {
+        // 캔버스 패닝
+        if (state.isPanning) {
+            const newX = e.clientX - state.panStart.x;
+            const newY = e.clientY - state.panStart.y;
+            setPan(newX, newY);
+            return;
+        }
+        
+        // 노드 드래그
         if (state.draggingNode) {
             const x = e.clientX - state.dragOffset.x;
             const y = e.clientY - state.dragOffset.y;
@@ -342,6 +373,10 @@ function attachEventListeners() {
     
     // 드래그 종료
     document.addEventListener('mouseup', () => {
+        if (state.isPanning) {
+            state.isPanning = false;
+        }
+        
         if (state.draggingNode) {
             state.draggingNode.classList.remove('dragging');
             state.draggingNode = null;
@@ -367,8 +402,45 @@ function attachEventListeners() {
     
     // 키보드 단축키
     document.addEventListener('keydown', (e) => {
+        // 입력 필드에서는 단축키 무시
+        const isInputField = e.target.closest('input') || e.target.closest('textarea') || e.target.closest('[contenteditable="true"]');
+        
+        // Space 키로 패닝 모드 토글
+        if (e.key === ' ' && !isInputField) {
+            e.preventDefault();
+            if (!state.spaceKeyPressed) {
+                state.spaceKeyPressed = true;
+                const panModeBtn = document.getElementById('panModeBtn');
+                const panControls = document.getElementById('panControls');
+                const canvasWrapper = document.getElementById('canvasWrapper');
+                panModeBtn.classList.add('active');
+                panControls.classList.add('active');
+                canvasWrapper.classList.add('panning');
+            }
+        }
+        
+        // 방향키로 패닝 (Shift + 방향키)
+        if (e.shiftKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+            const panStep = 50;
+            switch(e.key) {
+                case 'ArrowUp':
+                    setPan(state.panOffset.x, state.panOffset.y + panStep);
+                    break;
+                case 'ArrowDown':
+                    setPan(state.panOffset.x, state.panOffset.y - panStep);
+                    break;
+                case 'ArrowLeft':
+                    setPan(state.panOffset.x + panStep, state.panOffset.y);
+                    break;
+                case 'ArrowRight':
+                    setPan(state.panOffset.x - panStep, state.panOffset.y);
+                    break;
+            }
+        }
+        
         if (e.key === 'n' || e.key === 'N') {
-            if (!e.target.closest('.node-content') && !e.target.closest('input') && !e.target.closest('textarea')) {
+            if (!isInputField) {
                 addNewNode();
             }
         }
@@ -397,6 +469,18 @@ function attachEventListeners() {
             closeColorModal();
             closeAboutModal();
             closeVersionHistoryModal();
+            
+            // 패닝 모드 해제
+            if (state.spaceKeyPressed) {
+                state.spaceKeyPressed = false;
+                const panModeBtn = document.getElementById('panModeBtn');
+                const panControls = document.getElementById('panControls');
+                const canvasWrapper = document.getElementById('canvasWrapper');
+                panModeBtn.classList.remove('active');
+                panControls.classList.remove('active');
+                canvasWrapper.classList.remove('panning');
+            }
+            
             if (state.connectingMode) {
                 state.connectingMode = false;
                 state.connectingFromNode = null;
@@ -412,6 +496,19 @@ function attachEventListeners() {
                 });
                 showToast('노드 추가 취소됨');
             }
+        }
+    });
+    
+    // Space 키 떼면 패닝 모드 해제
+    document.addEventListener('keyup', (e) => {
+        if (e.key === ' ' && state.spaceKeyPressed) {
+            state.spaceKeyPressed = false;
+            const panModeBtn = document.getElementById('panModeBtn');
+            const panControls = document.getElementById('panControls');
+            const canvasWrapper = document.getElementById('canvasWrapper');
+            panModeBtn.classList.remove('active');
+            panControls.classList.remove('active');
+            canvasWrapper.classList.remove('panning');
         }
     });
     
@@ -460,6 +557,14 @@ function attachEventListeners() {
     document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
     document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
     document.getElementById('zoomResetBtn').addEventListener('click', zoomReset);
+    document.getElementById('panModeBtn').addEventListener('click', togglePanMode);
+    
+    // 패닝 컨트롤
+    document.getElementById('panUpBtn').addEventListener('click', () => panByDirection('up'));
+    document.getElementById('panDownBtn').addEventListener('click', () => panByDirection('down'));
+    document.getElementById('panLeftBtn').addEventListener('click', () => panByDirection('left'));
+    document.getElementById('panRightBtn').addEventListener('click', () => panByDirection('right'));
+    document.getElementById('panCenterBtn').addEventListener('click', () => panByDirection('center'));
     
     // 터치 제스처 및 마우스 휠 줌 초기화
     initializeTouchGestures();
@@ -1163,29 +1268,42 @@ function closeVersionHistoryModal() {
     versionHistoryModal.classList.remove('active');
 }
 
+// 줌 및 패닝 적용
+function applyTransform() {
+    const nodesContainer = document.getElementById('nodesContainer');
+    const canvas = document.getElementById('canvas');
+    
+    const transform = `translate(${state.panOffset.x}px, ${state.panOffset.y}px) scale(${state.zoom})`;
+    
+    if (nodesContainer) {
+        nodesContainer.style.transform = transform;
+    }
+    if (canvas) {
+        canvas.style.transform = transform;
+    }
+    
+    // 연결선 업데이트
+    updateConnections();
+}
+
 // 줌 기능
 function setZoom(newZoom) {
     state.zoom = Math.max(state.minZoom, Math.min(state.maxZoom, newZoom));
     
-    // 노드 컨테이너와 캔버스에 줌 적용
-    const nodesContainer = document.getElementById('nodesContainer');
-    const canvas = document.getElementById('canvas');
-    
-    if (nodesContainer) {
-        nodesContainer.style.transform = `scale(${state.zoom})`;
-    }
-    if (canvas) {
-        canvas.style.transform = `scale(${state.zoom})`;
-    }
+    applyTransform();
     
     // 줌 레벨 표시 업데이트
     const zoomLevel = document.getElementById('zoomLevel');
     if (zoomLevel) {
         zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
     }
-    
-    // 연결선 업데이트
-    updateConnections();
+}
+
+// 패닝 설정
+function setPan(x, y) {
+    state.panOffset.x = x;
+    state.panOffset.y = y;
+    applyTransform();
 }
 
 function zoomIn() {
@@ -1198,6 +1316,51 @@ function zoomOut() {
 
 function zoomReset() {
     setZoom(1.0);
+    setPan(0, 0);
+}
+
+// 패닝 모드 토글
+function togglePanMode() {
+    state.spaceKeyPressed = !state.spaceKeyPressed;
+    const panModeBtn = document.getElementById('panModeBtn');
+    const panControls = document.getElementById('panControls');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    
+    if (state.spaceKeyPressed) {
+        panModeBtn.classList.add('active');
+        panControls.classList.add('active');
+        canvasWrapper.classList.add('panning');
+        showToast('캔버스 이동 모드 활성화 (드래그하여 이동)');
+    } else {
+        panModeBtn.classList.remove('active');
+        panControls.classList.remove('active');
+        canvasWrapper.classList.remove('panning');
+        showToast('캔버스 이동 모드 비활성화');
+    }
+}
+
+// 방향키로 패닝
+function panByDirection(direction) {
+    const panStep = 100;
+    
+    switch(direction) {
+        case 'up':
+            setPan(state.panOffset.x, state.panOffset.y + panStep);
+            break;
+        case 'down':
+            setPan(state.panOffset.x, state.panOffset.y - panStep);
+            break;
+        case 'left':
+            setPan(state.panOffset.x + panStep, state.panOffset.y);
+            break;
+        case 'right':
+            setPan(state.panOffset.x - panStep, state.panOffset.y);
+            break;
+        case 'center':
+            setPan(0, 0);
+            showToast('캔버스가 중앙으로 이동되었습니다');
+            break;
+    }
 }
 
 // 터치 제스처 지원 (핀치 줌)
