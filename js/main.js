@@ -786,6 +786,15 @@ function autoLoadFromLocalStorage() {
     if (saved) {
         try {
             const data = JSON.parse(saved);
+            
+            // 마이그레이션: "블핀" -> "불편" 자동 수정
+            if (data.title && data.title.includes('블핀')) {
+                data.title = data.title.replace(/블핀/g, '불편');
+                console.log('제목 자동 수정: 블핀 -> 불편');
+                // 수정된 데이터를 다시 저장
+                localStorage.setItem('mindmap-data', JSON.stringify(data));
+            }
+            
             loadMindmapData(data);
             console.log('자동으로 이전 작업을 불러왔습니다');
         } catch (e) {
