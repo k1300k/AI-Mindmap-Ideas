@@ -32,6 +32,18 @@ const toast = document.getElementById('toast');
 document.addEventListener('DOMContentLoaded', () => {
     attachEventListeners();
     autoLoadFromLocalStorage();
+    
+    // 캔버스 제목 변경 시 자동 저장
+    const canvasTitle = document.getElementById('canvasTitle');
+    canvasTitle.addEventListener('blur', () => {
+        autoSave();
+    });
+    canvasTitle.addEventListener('input', () => {
+        if (canvasTitle.autoSaveTimeout) clearTimeout(canvasTitle.autoSaveTimeout);
+        canvasTitle.autoSaveTimeout = setTimeout(() => {
+            autoSave();
+        }, 1000);
+    });
 });
 
 // 기본 마인드맵 초기화
@@ -307,6 +319,11 @@ function attachNodeEventListeners(node) {
         if (state.draggingNode === node) {
             node.classList.remove('dragging');
             state.draggingNode = null;
+            
+            // 터치 드래그 후 자동 저장
+            if (isTouchDragging) {
+                autoSave();
+            }
         }
         
         isTouchDragging = false;
@@ -375,11 +392,15 @@ function attachEventListeners() {
     document.addEventListener('mouseup', () => {
         if (state.isPanning) {
             state.isPanning = false;
+            // 패닝 후 자동 저장
+            autoSave();
         }
         
         if (state.draggingNode) {
             state.draggingNode.classList.remove('dragging');
             state.draggingNode = null;
+            // 노드 이동 후 자동 저장
+            autoSave();
         }
     });
     
@@ -652,6 +673,9 @@ function createChildNode(parentNode) {
     // 부모와 자식 자동 연결
     createConnection(parentNode.id, newNode.id);
     
+    // 자동 저장
+    autoSave();
+    
     showToast(`${parentData.content.substring(0, 10)}... 노드에 자식이 추가되었습니다`);
 }
 
@@ -743,6 +767,9 @@ function saveNodeEdit() {
     // 노드 DOM 업데이트
     updateNodeDisplay(state.selectedNode, title, memo, url, urlTitle);
     
+    // 자동 저장
+    autoSave();
+    
     closeEditModal();
     showToast('노드가 업데이트되었습니다');
 }
@@ -803,6 +830,9 @@ function changeNodeColor(color) {
             nodeData.color = color;
         }
         
+        // 자동 저장
+        autoSave();
+        
         showToast('색상이 변경되었습니다');
     }
     closeColorModal();
@@ -827,6 +857,10 @@ function cycleNodeSize(node) {
     }
     
     updateConnections();
+    
+    // 자동 저장
+    autoSave();
+    
     showToast(`크기 변경: ${newSize}`);
 }
 
@@ -841,6 +875,10 @@ function startConnecting() {
         const targetNode = e.target.closest('.node');
         if (targetNode && targetNode !== state.connectingFromNode) {
             createConnection(state.connectingFromNode.id, targetNode.id);
+            
+            // 자동 저장
+            autoSave();
+            
             showToast('노드가 연결되었습니다');
             state.connectingMode = false;
             state.connectingFromNode = null;
@@ -868,6 +906,9 @@ function deleteNode(node) {
     // DOM에서 제거
     node.remove();
     
+    // 자동 저장
+    autoSave();
+    
     updateConnections();
     showToast('노드가 삭제되었습니다');
 }
@@ -890,12 +931,32 @@ function updateNodeContent(node, content) {
 }
 
 // JSON 파일로 저장
-function saveToLocalStorage() {
+// 자동 저장 (LocalStorage만)
+function autoSave() {
     const data = {
-        version: '1.1.0',
+        version: '1.2.0',
         title: document.getElementById('canvasTitle').textContent,
         nodes: state.nodes,
         connections: state.connections,
+        zoom: state.zoom,
+        panOffset: state.panOffset,
+        timestamp: Date.now(),
+        createdAt: new Date().toISOString()
+    };
+    
+    const jsonString = JSON.stringify(data, null, 2);
+    localStorage.setItem('mindmap-data', jsonString);
+}
+
+// JSON 파일로 저장 (다운로드)
+function saveToLocalStorage() {
+    const data = {
+        version: '1.2.0',
+        title: document.getElementById('canvasTitle').textContent,
+        nodes: state.nodes,
+        connections: state.connections,
+        zoom: state.zoom,
+        panOffset: state.panOffset,
         timestamp: Date.now(),
         createdAt: new Date().toISOString()
     };
@@ -973,6 +1034,14 @@ function loadMindmapData(data) {
     if (data.connections && Array.isArray(data.connections)) {
         state.connections = data.connections;
         updateConnections();
+    }
+    
+    // 줌 및 패닝 복원
+    if (data.zoom !== undefined) {
+        setZoom(data.zoom);
+    }
+    if (data.panOffset) {
+        setPan(data.panOffset.x, data.panOffset.y);
     }
     
     // 로컬 스토리지에도 저장
@@ -1297,6 +1366,12 @@ function setZoom(newZoom) {
     if (zoomLevel) {
         zoomLevel.textContent = `${Math.round(state.zoom * 100)}%`;
     }
+    
+    // 자동 저장 (디바운스)
+    if (setZoom.timeout) clearTimeout(setZoom.timeout);
+    setZoom.timeout = setTimeout(() => {
+        autoSave();
+    }, 500);
 }
 
 // 패닝 설정
