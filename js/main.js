@@ -5,7 +5,7 @@ const state = {
     nextNodeId: 1,
     selectedNode: null,
     draggingNode: null,
-    dragOffset: { x: 0, y: 0 },
+    dragOffset: { x: 0, y: 0, startX: 0, startY: 0 },
     connectingMode: false,
     connectingFromNode: null,
     addingChildMode: false,
@@ -243,6 +243,8 @@ function attachNodeEventListeners(node) {
     let touchStartTime = 0;
     let touchStartPos = { x: 0, y: 0 };
     let isTouchDragging = false;
+    let mouseDownPos = { x: 0, y: 0 };
+    let hasMovedMouse = false;
     
     // 마우스 드래그 시작
     node.addEventListener('mousedown', (e) => {
@@ -250,11 +252,12 @@ function attachNodeEventListeners(node) {
         if (e.target.contentEditable === 'true') return;
         
         state.draggingNode = node;
-        node.classList.add('dragging');
         
         const rect = node.getBoundingClientRect();
         state.dragOffset.x = e.clientX - rect.left;
         state.dragOffset.y = e.clientY - rect.top;
+        state.dragOffset.startX = e.clientX;
+        state.dragOffset.startY = e.clientY;
         
         e.preventDefault();
     });
@@ -366,6 +369,7 @@ function attachEventListeners() {
     });
     
     // 드래그 중
+    let hasActuallyDragged = false;
     document.addEventListener('mousemove', (e) => {
         // 캔버스 패닝
         if (state.isPanning) {
@@ -377,14 +381,25 @@ function attachEventListeners() {
         
         // 노드 드래그
         if (state.draggingNode) {
-            const x = e.clientX - state.dragOffset.x;
-            const y = e.clientY - state.dragOffset.y;
+            // 5px 이상 이동했을 때만 실제 드래그로 간주
+            const moveDistance = Math.hypot(
+                e.clientX - state.dragOffset.startX,
+                e.clientY - state.dragOffset.startY
+            );
             
-            state.draggingNode.style.left = `${x}px`;
-            state.draggingNode.style.top = `${y}px`;
-            
-            updateNodePosition(state.draggingNode, x, y);
-            updateConnections();
+            if (moveDistance > 5) {
+                hasActuallyDragged = true;
+                state.draggingNode.classList.add('dragging');
+                
+                const x = e.clientX - state.dragOffset.x;
+                const y = e.clientY - state.dragOffset.y;
+                
+                state.draggingNode.style.left = `${x}px`;
+                state.draggingNode.style.top = `${y}px`;
+                
+                updateNodePosition(state.draggingNode, x, y);
+                updateConnections();
+            }
         }
     });
     
@@ -398,9 +413,14 @@ function attachEventListeners() {
         
         if (state.draggingNode) {
             state.draggingNode.classList.remove('dragging');
+            
+            // 실제로 드래그했을 때만 자동 저장
+            if (hasActuallyDragged) {
+                autoSave();
+            }
+            
             state.draggingNode = null;
-            // 노드 이동 후 자동 저장
-            autoSave();
+            hasActuallyDragged = false;
         }
     });
     
