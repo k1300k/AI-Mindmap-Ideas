@@ -24,6 +24,72 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    /* 모달 */
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: #ffffff;
+}
+
+/* Firebase 설정 모달 스타일 */
+.firebase-config-modal {
+    max-width: 600px !important;
+    width: 90vw !important;
+}
+
+.firebase-config-modal .form-group {
+    margin-bottom: 1rem;
+}
+
+.firebase-config-modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+.firebase-config-modal input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.firebase-config-modal input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.firebase-config-modal .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.firebase-config-modal .help-text {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+.firebase-config-modal .help-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.firebase-config-modal .help-text a:hover {
+    text-decoration: underline;
+}
+    
+    /* 모달 */
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: #ffffff;
+}
 }
 
 body {

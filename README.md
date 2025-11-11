@@ -1,12 +1,31 @@
 # IdeaFlow - 인터랙티브 마인드맵 대시보드
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Development](https://img.shields.io/badge/dev-Vibe%20Coding-purple)
 ![Mobile](https://img.shields.io/badge/mobile-optimized-brightgreen)
+![Firebase](https://img.shields.io/badge/firebase-integrated-orange)
 
 **바이브코딩(Vibe Coding)** 프롬프트 방식으로 구성된 차세대 마인드맵 대시보드입니다. 
-AI와의 대화를 통해 점진적으로 발전하며, **모바일 최적화**, **자동 저장**, **줌/패닝** 기능이 있는 아름답고 직관적인 인터페이스를 제공합니다.
+AI와의 대화를 통해 점진적으로 발전하며, **Firebase 클라우드 저장**, **모바일 최적화**, **자동 저장**, **줌/패닝** 기능이 있는 아름답고 직관적인 인터페이스를 제공합니다.
+
+## 📌 프로젝트 소개
+
+**"질문으로 접근하는 생활형 불편 대응 아이디어"**를 시각화하고 관리하기 위한 마인드맵 도구입니다. 
+일상 생활에서 발견한 불편함을 체계적으로 정리하고, 해결 아이디어를 확장해 나갈 수 있습니다.
+
+## 🌟 주요 기능
+
+### ✅ 현재 구현된 기능
+
+- **☁️ Firebase 클라우드 통합**
+  - 🔄 **실시간 데이터베이스**: Firebase Realtime Database 연동
+  - 📱 **멀티 디바이스 동기화**: 여러 기기에서 동일한 데이터 접근
+  - 🔒 **자동 백업**: Firebase 연결 실패시 LocalStorage로 자동 전환
+  - ⚙️ **간편한 설정**: 웹 인터페이스에서 직접 Firebase 설정
+  - 🌐 **오프라인 지원**: 인터넷 연결 없이도 작업 가능
+
+- **✨ 인터랙티브 노드 관리**
 
 ## 📌 프로젝트 소개
 
@@ -46,7 +65,10 @@ AI와의 대화를 통해 점진적으로 발전하며, **모바일 최적화**,
   - 원클릭 템플릿 로드
 
 - **💾 자동 저장 시스템**
-  - 🔄 **실시간 자동 저장**: 모든 변경사항 즉시 LocalStorage에 저장
+  - 🔄 **실시간 클라우드 저장**: 모든 변경사항 즉시 Firebase에 저장 (LocalStorage 백업 지원)
+  - ☁️ **Firebase 통합**: 클라우드 기반 데이터 관리
+  - 📱 **멀티 디바이스 동기화**: 여러 기기에서 동일한 데이터 접근 가능
+  - 🔒 **오프라인 지원**: 인터넷 연결 없이도 작업 가능 (LocalStorage 자동 백업)
   - 📦 JSON 파일 형식으로 다운로드/불러오기
   - 🔁 브라우저 재방문 시 이전 작업 자동 복원
   - 💾 줌/패닝 상태도 함께 저장 및 복원
@@ -182,17 +204,21 @@ ideaflow/
 ├── css/
 │   └── style.css       # 전체 스타일시트
 ├── js/
-│   └── main.js         # 핵심 JavaScript 로직
+│   ├── main.js         # 핵심 JavaScript 로직
+│   ├── firebase-config.js        # Firebase 설정 및 유틸리티
+│   └── firebase-config-manager.js # Firebase 설정 관리
+├── FIREBASE_SETUP.md   # Firebase 설정 가이드
 └── README.md           # 프로젝트 문서
 ```
 
 ## 🎯 기술 스택
 
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **라이브러리**: html2canvas 1.4.1 (PNG 내보내기)
+- **클라우드 데이터베이스**: Firebase Realtime Database
+- **라이브러리**: html2canvas 1.4.1 (PNG 내보내기), Firebase 9.22.0
 - **아이콘**: Font Awesome 6.4.0
 - **폰트**: Noto Sans KR (Google Fonts)
-- **저장소**: LocalStorage API
+- **저장소**: Firebase Realtime Database (Primary), LocalStorage API (Backup)
 - **그래픽**: SVG (연결선), Canvas (이미지 내보내기)
 
 ## 🔧 주요 기능 URIs 및 데이터 구조
@@ -203,7 +229,7 @@ ideaflow/
 
 ```json
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "title": "마인드맵 제목",
   "nodes": [
     {
@@ -238,7 +264,7 @@ ideaflow/
 
 ### 필드 설명
 
-- **version**: 파일 포맷 버전 (1.2.0)
+- **version**: 파일 포맷 버전 (1.3.0)
 - **title**: 마인드맵 제목
 - **nodes**: 노드 배열
   - **id**: 노드 고유 ID
@@ -314,9 +340,14 @@ createConnection('node-1', 'node-2');
 - 터치 영역 확대 (최소 44px)
 - 방향 패드 네비게이션
 
-## ✅ 최근 업데이트 (v1.2.0)
+## ✅ 최근 업데이트 (v1.3.0)
 
 ### 2025-11-11
+- ✅ **Firebase 클라우드 통합**: Firebase Realtime Database 연동
+- ✅ **멀티 디바이스 동기화**: 여러 기기에서 동일한 데이터 접근 가능
+- ✅ **실시간 클라우드 저장**: 모든 변경사항 즉시 Firebase에 저장
+- ✅ **오프라인 지원**: 인터넷 연결 없이도 작업 가능 (LocalStorage 백업)
+- ✅ **Firebase 설정 UI**: 웹 인터페이스에서 직접 Firebase 설정
 - ✅ **자동 저장 시스템**: 모든 변경사항 실시간 저장
 - ✅ **줌 기능**: 25% ~ 300% 확대/축소, 핀치 줌 지원
 - ✅ **캔버스 패닝**: Space 키 + 드래그, 방향 패드
@@ -417,7 +448,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 **Made with ❤️ by AI-Powered Vibe Coding**
 
-*버전: 1.2.0 | 최종 업데이트: 2025-11-11*
+*버전: 1.3.0 | 최종 업데이트: 2025-11-11*
 
 ### 🌟 특별한 점
 

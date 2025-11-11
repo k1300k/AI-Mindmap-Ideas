@@ -30,6 +30,9 @@ const toast = document.getElementById('toast');
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
+    // Firebase 초기화
+    initializeFirebase();
+    
     attachEventListeners();
     autoLoadFromLocalStorage();
     
@@ -594,6 +597,11 @@ function attachEventListeners() {
     document.getElementById('showVersionHistoryBtn').addEventListener('click', showVersionHistoryModal);
     document.getElementById('closeVersionHistoryModal').addEventListener('click', closeVersionHistoryModal);
     
+    // Firebase 설정 모달
+    document.getElementById('firebaseConfigBtn').addEventListener('click', () => {
+        firebaseConfigManager.showConfigUI();
+    });
+    
     // 줌 컨트롤
     document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
     document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
@@ -951,10 +959,11 @@ function updateNodeContent(node, content) {
 }
 
 // JSON 파일로 저장
-// 자동 저장 (LocalStorage만)
+// 자동 저장 (Firebase + LocalStorage 백업)
 function autoSave() {
     const data = {
-        version: '1.2.0',
+        id: 'default',
+        version: '1.3.0',
         title: document.getElementById('canvasTitle').textContent,
         nodes: state.nodes,
         connections: state.connections,
@@ -964,14 +973,31 @@ function autoSave() {
         createdAt: new Date().toISOString()
     };
     
-    const jsonString = JSON.stringify(data, null, 2);
-    localStorage.setItem('mindmap-data', jsonString);
+    // Firebase에 저장 시도
+    if (firebaseUtils.isInitialized()) {
+        firebaseUtils.saveToFirebase(data, 
+            function() {
+                console.log('자동 저장 완료 (Firebase)');
+            },
+            function(error) {
+                console.error('Firebase 저장 실패, LocalStorage로 대체:', error);
+                // Firebase 실패시 LocalStorage에 백업
+                const jsonString = JSON.stringify(data, null, 2);
+                localStorage.setItem('mindmap-data', jsonString);
+            }
+        );
+    } else {
+        // Firebase가 초기화되지 않은 경우 LocalStorage에만 저장
+        const jsonString = JSON.stringify(data, null, 2);
+        localStorage.setItem('mindmap-data', jsonString);
+        console.log('자동 저장 완료 (LocalStorage)');
+    }
 }
 
 // JSON 파일로 저장 (다운로드)
 function saveToLocalStorage() {
     const data = {
-        version: '1.2.0',
+        version: '1.3.0',
         title: document.getElementById('canvasTitle').textContent,
         nodes: state.nodes,
         connections: state.connections,
@@ -993,8 +1019,20 @@ function saveToLocalStorage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // 로컬 스토리지에도 저장
-    localStorage.setItem('mindmap-data', jsonString);
+    // 로컬 스토리지에도 저장 (백업용)
+    if (firebaseUtils.isInitialized()) {
+        firebaseUtils.saveToFirebase(data, 
+            function() {
+                console.log('JSON 파일 저장 완료 (Firebase)');
+            },
+            function(error) {
+                console.error('Firebase 저장 실패, LocalStorage로 대체:', error);
+                localStorage.setItem('mindmap-data', jsonString);
+            }
+        );
+    } else {
+        localStorage.setItem('mindmap-data', jsonString);
+    }
     
     showToast('JSON 파일로 저장되었습니다');
 }
@@ -1068,8 +1106,34 @@ function loadMindmapData(data) {
     localStorage.setItem('mindmap-data', JSON.stringify(data));
 }
 
-// 페이지 로드 시 자동으로 로컬 스토리지에서 불러오기
+// 페이지 로드 시 자동으로 Firebase에서 불러오기 (LocalStorage 백업)
 function autoLoadFromLocalStorage() {
+    // Firebase에서 먼저 시도
+    if (firebaseUtils.isInitialized()) {
+        firebaseUtils.loadFromFirebase('default',
+            function(data) {
+                if (data) {
+                    // Firebase에서 데이터를 찾은 경우
+                    console.log('Firebase에서 데이터 불러오기 성공');
+                    loadMindmapData(data);
+                } else {
+                    // Firebase에 데이터가 없는 경우 LocalStorage에서 시도
+                    loadFromLocalStorageBackup();
+                }
+            },
+            function(error) {
+                console.error('Firebase에서 불러오기 실패, LocalStorage로 대체:', error);
+                loadFromLocalStorageBackup();
+            }
+        );
+    } else {
+        // Firebase가 초기화되지 않은 경우 LocalStorage에서만 시도
+        loadFromLocalStorageBackup();
+    }
+}
+
+// LocalStorage 백업에서 불러오기
+function loadFromLocalStorageBackup() {
     const saved = localStorage.getItem('mindmap-data');
     
     if (saved) {
@@ -1085,7 +1149,7 @@ function autoLoadFromLocalStorage() {
             }
             
             loadMindmapData(data);
-            console.log('자동으로 이전 작업을 불러왔습니다');
+            console.log('자동으로 이전 작업을 불러왔습니다 (LocalStorage)');
         } catch (e) {
             console.error('자동 불러오기 실패:', e);
             // 실패하면 기본 맵 로드
