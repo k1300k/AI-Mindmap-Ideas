@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 설정 열기</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        p {
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+        
+        .info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #FFD700;
+            font-size: 1.1rem;
+        }
+        
+        .error {
+            display: none;
+            margin-top: 1rem;
+            color: #FF6B6B;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            color: #333;
+        }
+        
+        .success {
+            display: none;
+            margin-top: 1rem;
+            color: #4CAF50;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 10px;
+            color: #333;
+            border: 2px solid #4CAF50;
+        }
+        
+        .instructions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+        
+        .instructions ol {
+            text-align: left;
+            padding-left: 20px;
+            opacity: 0.9;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>⚙️</span>
+            Firebase 설정
+        </h1>
+        <p>
+            IdeaFlow 마인드맵의 Firebase 클라우드 통합을 설정하세요.
+            실시간 데이터베이스 연결로 여러 기기에서 동기화된 마인드맵을 사용할 수 있습니다.
+        </p>
+        
+        <button class="btn" onclick="openMainAppWithFirebase()">
+            <i class="fas fa-rocket"></i> 메인 앱에서 Firebase 설정 열기
+        </button>
+        
+        <button class="btn btn-secondary" onclick="openDirectConfig()">
+            <i class="fas fa-cog"></i> 직접 설정창 열기
+        </button>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> 설정 창을 여는 중...
+        </div>
+        
+        <div class="success" id="success"></div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="instructions">
+            <h3>📋 Firebase 설정 방법</h3>
+            <ol>
+                <li><strong>Firebase 콘솔</strong>에서 새 프로젝트를 생성하세요.</li>
+                <li><strong>Realtime Database</strong>를 활성화하세요.</li>
+                <li>프로젝트 설정에서 <strong>API 키</strong>와 <strong>데이터베이스 URL</strong>을 복사하세요.</li>
+                <li>위의 <strong>Firebase 설정 열기</strong> 버튼을 클릭하세요.</li>
+                <li>복사한 정보를 입력하고 <strong>저장 및 적용</strong>을 클릭하세요.</li>
+            </ol>
+        </div>
+        
+        <div class="info">
+            <strong>💡 팁:</strong> Firebase 설정을 위해 다음 정보가 필요합니다:<br>
+            • Firebase 프로젝트 ID<br>
+            • API 키<br>
+            • 데이터베이스 URL<br>
+            • 인증 도메인<br><br>
+            <strong>자세한 설정 방법은 <a href="FIREBASE_SETUP.md" target="_blank" style="color: #FFD700;">FIREBASE_SETUP.md</a>를 참고하세요.</strong>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.style.display = 'block';
+            if (!isError) {
+                setTimeout(() => element.style.display = 'none', 5000);
+            }
+        }
+        
+        function hideAllMessages() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+        }
+        
+        function openMainAppWithFirebase() {
+            hideAllMessages();
+            
+            const loading = document.getElementById('loading');
+            const success = document.getElementById('success');
+            const error = document.getElementById('error');
+            
+            // Show loading state
+            loading.style.display = 'block';
+            
+            try {
+                // Open the main application with a special parameter to auto-open Firebase config
+                const mainAppUrl = 'https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html?openFirebase=true';
+                const mainWindow = window.open(mainAppUrl, '_blank');
+                
+                if (mainWindow) {
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        showMessage('success', `
+                            <strong>✅ 메인 애플리케이션이 열렸습니다!</strong><br><br>
+                            좌측 툴바의 ⚙️ <strong>Firebase 설정</strong> 버튼을 클릭하세요.<br>
+                            (설정 창이 자동으로 열릴 수 있습니다)
+                        `);
+                    }, 2000);
+                } else {
+                    throw new Error('팝업이 차단되었습니다. 브라우저에서 팝업 차단을 해제해주세요.');
+                }
+            } catch (e) {
+                loading.style.display = 'none';
+                showMessage('error', `
+                    <strong>❌ 오류 발생:</strong> ${e.message}<br><br>
+                    직접 <a href="https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html" target="_blank" style="color: #3B82F6;">여기</a>를 클릭하여 메인 애플리케이션을 여세요.
+                `, true);
+            }
+        }
+        
+        function openDirectConfig() {
+            hideAllMessages();
+            
+            const loading = document.getElementById('loading');
+            const success = document.getElementById('success');
+            const error = document.getElementById('error');
+            
+            // Show loading state
+            loading.style.display = 'block';
+            
+            try {
+                // Create a new window with the main app and inject the Firebase config opener
+                const configUrl = 'https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html';
+                const configWindow = window.open(configUrl, '_blank', 'width=1200,height=800');
+                
+                if (configWindow) {
+                    // Wait for the window to load, then inject the script
+                    setTimeout(() => {
+                        try {
+                            const script = configWindow.document.createElement('script');
+                            script.textContent = `
+                                (function() {
+                                    function openFirebaseConfig() {
+                                        if (typeof firebaseConfigManager !== 'undefined' && firebaseConfigManager.showConfigUI) {
+                                            firebaseConfigManager.showConfigUI();
+                                            return true;
+                                        } else if (window.firebaseConfigManager && window.firebaseConfigManager.showConfigUI) {
+                                            window.firebaseConfigManager.showConfigUI();
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                    
+                                    // Try to open immediately, or wait for page load
+                                    if (!openFirebaseConfig()) {
+                                        window.addEventListener('load', function() {
+                                            setTimeout(openFirebaseConfig, 1000);
+                                        });
+                                    }
+                                })();
+                            `;
+                            configWindow.document.head.appendChild(script);
+                            
+                            loading.style.display = 'none';
+                            showMessage('success', `
+                                <strong>✅ 설정 창이 열렸습니다!</strong><br><br>
+                                새 창에서 Firebase 설정을 완료하세요.
+                            `);
+                        } catch (injectError) {
+                            throw injectError;
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error('팝업이 차단되었습니다. 브라우저에서 팝업 차단을 해제해주세요.');
+                }
+            } catch (e) {
+                loading.style.display = 'none';
+                showMessage('error', `
+                    <strong>❌ 오류 발생:</strong> ${e.message}<br><br>
+                    수동으로 <a href="https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html" target="_blank" style="color: #3B82F6;">메인 애플리케이션</a>을 열고 좌측 툴바의 ⚙️ 버튼을 클릭하세요.
+                `, true);
+            }
+        }
+        
+        // Add some helpful keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                openMainAppWithFirebase();
+            } else if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                openDirectConfig();
+            }
+        });
+    </script>
+</body>
+</html>

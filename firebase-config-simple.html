@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 설정 열기 - IdeaFlow</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #FFD700;
+        }
+        
+        .error {
+            display: none;
+            margin-top: 1rem;
+            color: #FF6B6B;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            color: #333;
+        }
+        
+        .success {
+            display: none;
+            margin-top: 1rem;
+            color: #4CAF50;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Firebase 설정</h1>
+        <p>IdeaFlow 마인드맵의 Firebase 클라우드 통합을 설정하세요.</p>
+        
+        <button class="btn" onclick="openFirebaseConfig()">
+            <i class="fas fa-cog"></i> Firebase 설정창 열기
+        </button>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> 설정 창을 여는 중...
+        </div>
+        
+        <div class="success" id="success">
+            ✅ Firebase 설정 창이 열렸습니다!
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="status">
+            💡 <strong>TIP:</strong> Firebase 설정을 위해 필요한 정보:
+            <br>• Firebase 프로젝트 ID • API 키 • 데이터베이스 URL
+        </div>
+    </div>
+
+    <script>
+        function openFirebaseConfig() {
+            const loading = document.getElementById('loading');
+            const success = document.getElementById('success');
+            const error = document.getElementById('error');
+            
+            // Show loading
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            
+            try {
+                // Open the main application with Firebase config parameter
+                const mainAppUrl = 'https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html?openFirebase=true';
+                const mainWindow = window.open(mainAppUrl, '_blank', 'width=1200,height=800');
+                
+                if (mainWindow) {
+                    loading.style.display = 'none';
+                    success.style.display = 'block';
+                    
+                    // Auto-close this window after 3 seconds
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+                } else {
+                    throw new Error('팝업이 차단되었습니다.');
+                }
+            } catch (e) {
+                loading.style.display = 'none';
+                error.innerHTML = `<strong>❌ 오류 발생:</strong> ${e.message}<br><br>
+                직접 <a href="https://8000-i7w5ero0nw8kh2aqi8kei-18e660f9.sandbox.novita.ai/index.html" target="_blank" style="color: #FFD700;">여기</a>를 클릭하세요.`;
+                error.style.display = 'block';
+            }
+        }
+        
+        // Auto-open on page load
+        window.addEventListener('load', function() {
+            setTimeout(openFirebaseConfig, 1000);
+        });
+    </script>
+</body>
+</html>

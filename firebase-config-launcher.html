@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 설정 열기</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        p {
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #FFD700;
+        }
+        
+        .error {
+            display: none;
+            margin-top: 1rem;
+            color: #FF6B6B;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Firebase 설정</h1>
+        <p>
+            IdeaFlow 마인드맵의 Firebase 클라우드 통합을 설정하세요.
+            실시간 데이터베이스 연결로 여러 기기에서 동기화된 마인드맵을 사용할 수 있습니다.
+        </p>
+        
+        <button class="btn" onclick="openFirebaseConfig()">
+            <i class="fas fa-cog"></i> Firebase 설정창 열기
+        </button>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> 설정 창을 여는 중...
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="info">
+            <strong>💡 팁:</strong> Firebase 설정을 위해 다음 정보가 필요합니다:<br>
+            • Firebase 프로젝트 ID<br>
+            • API 키<br>
+            • 데이터베이스 URL<br>
+            • 인증 도메인<br><br>
+            <strong>자세한 설정 방법은 <a href="FIREBASE_SETUP.md" target="_blank" style="color: #FFD700;">FIREBASE_SETUP.md</a>를 참고하세요.</strong>
+        </div>
+    </div>
+
+    <script>
+        function openFirebaseConfig() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const btn = document.querySelector('.btn');
+            
+            // Show loading state
+            loading.style.display = 'block';
+            btn.style.display = 'none';
+            error.style.display = 'none';
+            
+            try {
+                // Check if we're in the main application
+                if (window.opener && window.opener.firebaseConfigManager) {
+                    // We're in a popup, open config in parent
+                    window.opener.firebaseConfigManager.showConfigUI();
+                    window.close();
+                } else {
+                    // Try to open the main application with Firebase config
+                    const mainAppUrl = window.location.origin;
+                    const configWindow = window.open(mainAppUrl, '_blank');
+                    
+                    // Wait for the new window to load, then open config
+                    setTimeout(() => {
+                        if (configWindow && configWindow.firebaseConfigManager) {
+                            configWindow.firebaseConfigManager.showConfigUI();
+                        } else {
+                            // If direct access fails, show instructions
+                            loading.style.display = 'none';
+                            error.style.display = 'block';
+                            error.innerHTML = `
+                                <strong>❌ 설정 창을 열 수 없습니다.</strong><br><br>
+                                다음 방법을 시도하세요:<br>
+                                1. <a href="${mainAppUrl}" target="_blank" style="color: #3B82F6;">메인 애플리케이션</a>을 열고<br>
+                                2. 좌측 툴바의 ⚙️ <strong>Firebase 설정</strong> 버튼을 클릭하세요.
+                            `;
+                            btn.style.display = 'inline-block';
+                            btn.textContent = '다시 시도';
+                        }
+                    }, 2000);
+                }
+            } catch (e) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.innerHTML = `
+                    <strong>❌ 오류 발생:</strong> ${e.message}<br><br>
+                    브라우저 콘솔에서 자세한 정보를 확인하세요.
+                `;
+                btn.style.display = 'inline-block';
+            }
+        }
+        
+        // Auto-open if coming from main app
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openFirebase') === 'true') {
+                openFirebaseConfig();
+            }
+        });
+    </script>
+</body>
+</html>

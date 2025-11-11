@@ -1,4 +1,11 @@
-// 전역 상태 관리
+// 전역 변수 (이름 충돌 방지를 위해 접두사 추가)
+let mainFirebaseApp = null;
+let mainDatabase = null;
+let mainAuth = null;
+
+// Firebase 초기화 함수 정의 (firebase-config-manager.js의 함수를 사용)
+// 이 함수는 이제 firebase-config-manager.js에 정의되어 있으며,
+// main.js와 firebase-config-manager.js 모두에서 사용할 수 있습니다.
 const state = {
     nodes: [],
     connections: [],
@@ -30,8 +37,17 @@ const toast = document.getElementById('toast');
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    // Firebase 초기화
-    initializeFirebase();
+    try {
+        // Firebase 초기화 시도
+        if (typeof initializeFirebase === 'function') {
+            initializeFirebase();
+        } else {
+            console.warn('Firebase 초기화 함수를 찾을 수 없습니다.');
+        }
+    } catch (error) {
+        console.warn('Firebase 초기화 실패:', error);
+        // Firebase 초기화 실패해도 앱은 계속 작동해야 함
+    }
     
     attachEventListeners();
     autoLoadFromLocalStorage();
@@ -1375,14 +1391,29 @@ function initializeProjectTemplate() {
 }
 
 // 토스트 표시
-function showToast(message) {
+function showToast(message, type = 'info', duration = 3000) {
     const toastMessage = document.getElementById('toastMessage');
     toastMessage.textContent = message;
+    
+    // 기존 타입 클래스 제거
+    toast.classList.remove('toast-success', 'toast-error', 'toast-warning', 'toast-info');
+    
+    // 타입별 클래스 추가
+    if (type === 'success') {
+        toast.classList.add('toast-success');
+    } else if (type === 'error') {
+        toast.classList.add('toast-error');
+    } else if (type === 'warning') {
+        toast.classList.add('toast-warning');
+    } else {
+        toast.classList.add('toast-info');
+    }
+    
     toast.classList.add('active');
     
     setTimeout(() => {
         toast.classList.remove('active');
-    }, 3000);
+    }, duration);
 }
 
 // 프로그램 설명 모달

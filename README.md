@@ -1,6 +1,6 @@
 # 🚀 IdeaFlow - Firebase 통합 인터랙티브 마인드맵 대시보드
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Development](https://img.shields.io/badge/dev-Vibe%20Coding-purple)
 ![Mobile](https://img.shields.io/badge/mobile-optimized-brightgreen)
@@ -84,7 +84,7 @@ npx serve .
 ```
 
 ### 3. Firebase 설정하기
-1. 좌측 툴바의 **⚙️ Firebase 설정** 버튼 클릭
+1. 좌측 툴바의 **⚙️ Firebase 설정** 버튼을 클릭하면 화면 중앙에 설정 모달이 열립니다.
 2. **Firebase 콘솔**에서 프로젝트 생성
 3. **Realtime Database** 활성화
 4. 설정 정보를 입력하고 **저장 및 적용**
@@ -173,6 +173,20 @@ ideaflow/
 
 ## 🔄 최근 업데이트
 
+### v1.3.4 (2025-11-11) - Firebase 초기화 개선 및 사용자 안내 강화 🔧
+- ✅ **Firebase 초기화 로직 통합** - 중복 코드 제거 및 단일 초기화 함수로 통합
+- ✅ **설정 검증 기능** - Firebase 설정 누락 시 친절한 안내 메시지 표시
+- ✅ **타입별 Toast 알림** - Success, Error, Warning, Info 타입별 색상 스타일 추가
+- ✅ **향상된 에러 메시지** - 구체적인 문제 진단 및 해결 방법 안내
+- ✅ **자동 안내 시스템** - 첫 실행 시 Firebase 설정 안내 자동 표시
+- ✅ **LocalStorage 폴백** - Firebase 미설정 시 LocalStorage로 자동 전환
+- ✅ **개선된 로깅** - 이모지 아이콘으로 디버깅 용이성 향상
+
+### v1.3.3 (2025-11-11) - Firebase 설정 모달 표시 개선 🛠️
+- ✅ Firebase 설정 버튼을 눌렀을 때 모달이 즉시 표시되도록 오버레이 레이아웃을 수정했습니다.
+- ✅ 설정 창이 화면 중앙에 고정되고 배경이 어둡게 처리되어 집중도가 향상되었습니다.
+- ✅ README와 Firebase 가이드를 최신 상태로 업데이트했습니다.
+
 ### v1.3.0 (2025-11-11) - Firebase 통합 🚀
 - ✅ **Firebase Realtime Database 통합**
 - ✅ **멀티 디바이스 동기화** - 여러 기기에서 동일한 데이터 접근
@@ -219,7 +233,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 **Made with ❤️ by AI-Powered Vibe Coding**
 
-*버전: 1.3.0 | 최종 업데이트: 2025-11-11*
+*버전: 1.3.4 | 최종 업데이트: 2025-11-11*
 
 ### 🌟 특별한 점
 - **AI 기반 개발**: Claude AI와의 협업으로 개발

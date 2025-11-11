@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Firebase 개별 설정 - IdeaFlow</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .config-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .google-signin-section {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+        }
+
+        .google-signin-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-signin-btn {
+            background: white;
+            color: #4285f4;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .google-signin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .firebase-config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .firebase-config-section h3 {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #99d3ff;
+        }
+
+        .user-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .user-info h4 {
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-info p {
+            color: #555;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .config-container {
+                padding: 1.5rem;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.7rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="config-container fade-in">
+        <div class="header">
+            <h1><i class="fab fa-firebase"></i> Firebase 개별 설정</h1>
+            <p>Google 계정으로 로그인하고 Firebase 클라우드 저장소를 설정하세요</p>
+        </div>
+
+        <!-- Google Sign-In Section -->
+        <div class="google-signin-section">
+            <h3><i class="fab fa-google"></i> Google 계정 연결</h3>
+            <p style="margin-bottom: 1rem; opacity: 0.9;">Firebase 설정을 위해 Google 계정으로 로그인하세요</p>
+            <button id="googleSignInBtn" class="google-signin-btn">
+                <i class="fab fa-google"></i>
+                <span id="googleBtnText">Google로 로그인</span>
+            </button>
+        </div>
+
+        <!-- User Info -->
+        <div id="userInfo" class="user-info">
+            <h4><i class="fas fa-user-check"></i> 로그인됨</h4>
+            <p id="userEmail"></p>
+            <p id="userId"></p>
+        </div>
+
+        <!-- Firebase Configuration Section -->
+        <div id="firebaseConfigSection" class="firebase-config-section" style="display: none;">
+            <h3><i class="fas fa-cog"></i> Firebase 프로젝트 설정</h3>
+            
+            <div class="status-message" id="statusMessage"></div>
+
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="password" id="apiKey" placeholder="AIza...">
+                <div class="help-text">Firebase 콘솔의 프로젝트 설정에서 찾을 수 있습니다</div>
+            </div>
+
+            <div class="form-group">
+                <label for="authDomain">인증 도메인</label>
+                <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
+                <div class="help-text">Firebase 프로젝트의 인증 도메인</div>
+            </div>
+
+            <div class="form-group">
+                <label for="databaseURL">데이터베이스 URL</label>
+                <input type="text" id="databaseURL" placeholder="https://your-project.firebaseio.com">
+                <div class="help-text">Realtime Database URL (https://로 시작)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="projectId">프로젝트 ID</label>
+                <input type="text" id="projectId" placeholder="your-project-id">
+                <div class="help-text">Firebase 프로젝트의 고유 ID</div>
+            </div>
+
+            <div class="form-group">
+                <label for="storageBucket">스토리지 버킷</label>
+                <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
+                <div class="help-text">Firebase Storage 버킷 (선택사항)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="messagingSenderId">메시징 발신자 ID</label>
+                <input type="text" id="messagingSenderId" placeholder="123456789012">
+                <div class="help-text">Firebase Cloud Messaging 발신자 ID (선택사항)</div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="testConnectionBtn" class="btn btn-secondary">
+                    <i class="fas fa-plug"></i> 연결 테스트
+                </button>
+                <button id="saveConfigBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 설정 저장
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons for Main App -->
+        <div id="mainAppButtons" class="action-buttons" style="display: none;">
+            <button id="openMainAppBtn" class="btn btn-success">
+                <i class="fas fa-external-link-alt"></i> 메인 앱 열기
+            </button>
+            <button id="closeBtn" class="btn btn-secondary">
+                <i class="fas fa-times"></i> 닫기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class FirebaseIndividualConfig {
+            constructor() {
+                this.firebaseApp = null;
+                this.firebaseAuth = null;
+                this.firebaseDatabase = null;
+                this.currentUser = null;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.loadSavedConfig();
+                this.initializeFirebaseAuth();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    googleSignInBtn: document.getElementById('googleSignInBtn'),
+                    googleBtnText: document.getElementById('googleBtnText'),
+                    userInfo: document.getElementById('userInfo'),
+                    userEmail: document.getElementById('userEmail'),
+                    userId: document.getElementById('userId'),
+                    firebaseConfigSection: document.getElementById('firebaseConfigSection'),
+                    mainAppButtons: document.getElementById('mainAppButtons'),
+                    statusMessage: document.getElementById('statusMessage'),
+                    
+                    apiKey: document.getElementById('apiKey'),
+                    authDomain: document.getElementById('authDomain'),
+                    databaseURL: document.getElementById('databaseURL'),
+                    projectId: document.getElementById('projectId'),
+                    storageBucket: document.getElementById('storageBucket'),
+                    messagingSenderId: document.getElementById('messagingSenderId'),
+                    
+                    testConnectionBtn: document.getElementById('testConnectionBtn'),
+                    saveConfigBtn: document.getElementById('saveConfigBtn'),
+                    openMainAppBtn: document.getElementById('openMainAppBtn'),
+                    closeBtn: document.getElementById('closeBtn')
+                };
+            }
+
+            bindEvents() {
+                this.elements.googleSignInBtn.addEventListener('click', () => this.handleGoogleSignIn());
+                this.elements.testConnectionBtn.addEventListener('click', () => this.testConnection());
+                this.elements.saveConfigBtn.addEventListener('click', () => this.saveConfiguration());
+                this.elements.openMainAppBtn.addEventListener('click', () => this.openMainApplication());
+                this.elements.closeBtn.addEventListener('click', () => window.close());
+            }
+
+            initializeFirebaseAuth() {
+                // Check if Firebase is already configured
+                if (typeof firebase !== 'undefined') {
+                    try {
+                        this.firebaseAuth = firebase.auth();
+                        this.checkAuthStatus();
+                    } catch (error) {
+                        console.log('Firebase not configured yet');
+                    }
+                }
+            }
+
+            checkAuthStatus() {
+                if (this.firebaseAuth) {
+                    this.firebaseAuth.onAuthStateChanged((user) => {
+                        if (user) {
+                            this.currentUser = user;
+                            this.showUserInfo(user);
+                            this.showFirebaseConfig();
+                        } else {
+                            this.currentUser = null;
+                            this.hideUserInfo();
+                            this.hideFirebaseConfig();
+                        }
+                    });
+                }
+            }
+
+            async handleGoogleSignIn() {
+                if (!this.firebaseAuth) {
+                    this.showStatus('Firebase가 아직 설정되지 않았습니다. 먼저 Firebase 설정을 완료해주세요.', 'error');
+                    return;
+                }
+
+                this.setLoading(true);
+                
+                try {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.addScope('email');
+                    provider.addScope('profile');
+                    
+                    const result = await this.firebaseAuth.signInWithPopup(provider);
+                    const user = result.user;
+                    
+                    this.currentUser = user;
+                    this.showUserInfo(user);
+                    this.showFirebaseConfig();
+                    this.showStatus('Google 계정으로 성공적으로 로그인되었습니다!', 'success');
+                    
+                } catch (error) {
+                    console.error('Google Sign-In Error:', error);
+                    this.showStatus(`로그인 실패: ${error.message}`, 'error');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            showUserInfo(user) {
+                this.elements.userEmail.textContent = `이메일: ${user.email}`;
+                this.elements.userId.textContent = `UID: ${user.uid}`;
+                this.elements.userInfo.style.display = 'block';
+                
+                this.elements.googleBtnText.textContent = '로그아웃';
+                this.elements.googleSignInBtn.onclick = () => this.handleGoogleSignOut();
+            }
+
+            hideUserInfo() {
+                this.elements.userInfo.style.display = 'none';
+                this.elements.googleBtnText.textContent = 'Google로 로그인';
+                this.elements.googleSignInBtn.onclick = () => this.handleGoogleSignIn();
+            }
+
+            async handleGoogleSignOut() {
+                if (this.firebaseAuth) {
+                    try {
+                        await this.firebaseAuth.signOut();
+                        this.currentUser = null;
+                        this.hideUserInfo();
+                        this.hideFirebaseConfig();
+                        this.showStatus('로그아웃되었습니다.', 'info');
+                    } catch (error) {
+                        this.showStatus(`로그아웃 실패: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            showFirebaseConfig() {
+                this.elements.firebaseConfigSection.style.display = 'block';
+                this.elements.mainAppButtons.style.display = 'flex';
+            }
+
+            hideFirebaseConfig() {
+                this.elements.firebaseConfigSection.style.display = 'none';
+                this.elements.mainAppButtons.style.display = 'none';
+            }
+
+            setLoading(loading) {
+                this.elements.googleSignInBtn.disabled = loading;
+                if (loading) {
+                    this.elements.googleBtnText.innerHTML = '<span class="loading"></span> 처리 중...';
+                } else {
+                    this.elements.googleBtnText.textContent = this.currentUser ? '로그아웃' : 'Google로 로그인';
+                }
+            }
+
+            showStatus(message, type = 'info') {
+                const statusDiv = this.elements.statusMessage;
+                statusDiv.className = `status-message status-${type}`;
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                
+                if (type === 'success') {
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            loadSavedConfig() {
+                const savedConfig = localStorage.getItem('firebaseConfig');
+                if (savedConfig) {
+                    try {
+                        const config = JSON.parse(savedConfig);
+                        this.elements.apiKey.value = config.apiKey || '';
+                        this.elements.authDomain.value = config.authDomain || '';
+                        this.elements.databaseURL.value = config.databaseURL || '';
+                        this.elements.projectId.value = config.projectId || '';
+                        this.elements.storageBucket.value = config.storageBucket || '';
+                        this.elements.messagingSenderId.value = config.messagingSenderId || '';
+                        
+                        // Initialize Firebase with saved config
+                        this.initializeFirebase(config);
+                    } catch (error) {
+                        console.error('Error loading saved config:', error);
+                    }
+                }
+            }
+
+            initializeFirebase(config) {
+                try {
+                    if (typeof firebase !== 'undefined') {
+                        // Initialize Firebase app
+                        this.firebaseApp = firebase.initializeApp(config);
+                        this.firebaseAuth = firebase.auth();
+                        this.firebaseDatabase = firebase.database();
+                        
+                        this.checkAuthStatus();
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Firebase initialization error:', error);
+                    return false;
+                }
+                return false;
+            }
+
+            async testConnection() {
+                const config = this.getFormData();
+                
+                if (!config.apiKey || !config.databaseURL) {
+                    this.showStatus('API Key와 Database URL은 필수 입력사항입니다.', 'error');
+                    return;
+                }
+
+                this.elements.testConnectionBtn.disabled = true;
+                this.elements.testConnectionBtn.innerHTML = '<span class="loading"></span> 테스트 중...';
+
+                try {
+                    // Initialize Firebase with test config
+                    if (this.initializeFirebase(config)) {
+                        // Test database connection
+                        const testRef = this.firebaseDatabase.ref('.info/connected');
+                        const connected = await testRef.once('value');
+                        
+                        if (connected.val() === true) {
+                            this.showStatus('✅ Firebase 연결 성공! 데이터베이스에 정상적으로 연결되었습니다.', 'success');
+                        } else {
+                            this.showStatus('⚠️ Firebase 연결은 성공했지만 실시간 연결 상태가 아닙니다.', 'warning');
+                        }
+                    } else {
+                        this.showStatus('❌ Firebase 초기화 실패. 설정을 확인해주세요.', 'error');
+                    }
+                } catch (error) {
+                    this.showStatus(`연결 테스트 실패: ${error.message}`, 'error');
+                } finally {
+                    this.elements.testConnectionBtn.disabled = false;
+                    this.elements.testConnectionBtn.innerHTML = '<i class="fas fa-plug"></i> 연결 테스트';
+                }
+            }
+
+            saveConfiguration() {
+                const config = this.getFormData();
+                
+                if (!config.apiKey || !config.databaseURL) {
+                    this.showStatus('API Key와 Database URL은 필수 입력사항입니다.', 'error');
+                    return;
+                }
+
+                try {
+                    // Save to localStorage
+                    localStorage.setItem('firebaseConfig', JSON.stringify(config));
+                    
+                    // Reinitialize Firebase with new config
+                    if (this.initializeFirebase(config)) {
+                        this.showStatus('✅ Firebase 설정이 성공적으로 저장되었습니다!', 'success');
+                        
+                        // Close window after successful save
+                        setTimeout(() => {
+                            this.openMainApplication();
+                        }, 1500);
+                    } else {
+                        this.showStatus('❌ Firebase 초기화 실패. 설정을 확인해주세요.', 'error');
+                    }
+                } catch (error) {
+                    this.showStatus(`설정 저장 실패: ${error.message}`, 'error');
+                }
+            }
+
+            getFormData() {
+                return {
+                    apiKey: this.elements.apiKey.value.trim(),
+                    authDomain: this.elements.authDomain.value.trim(),
+                    databaseURL: this.elements.databaseURL.value.trim(),
+                    projectId: this.elements.projectId.value.trim(),
+                    storageBucket: this.elements.storageBucket.value.trim(),
+                    messagingSenderId: this.elements.messagingSenderId.value.trim()
+                };
+            }
+
+            openMainApplication() {
+                const mainAppUrl = window.location.origin + '/index.html';
+                window.open(mainAppUrl, '_blank');
+                setTimeout(() => {
+                    window.close();
+                }, 500);
+            }
+
+            // Auto-fill from URL parameters
+            autoFillFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const params = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'storageBucket', 'messagingSenderId'];
+                
+                params.forEach(param => {
+                    if (urlParams.has(param)) {
+                        this.elements[param].value = urlParams.get(param);
+                    }
+                });
+
+                // Auto-test if all required params are present
+                const config = this.getFormData();
+                if (config.apiKey && config.databaseURL) {
+                    setTimeout(() => this.testConnection(), 1000);
+                }
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const firebaseConfig = new FirebaseIndividualConfig();
+            firebaseConfig.autoFillFromURL();
+        });
+    </script>
+</body>
+</html>
