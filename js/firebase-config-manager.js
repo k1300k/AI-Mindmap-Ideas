@@ -300,21 +300,50 @@ const firebaseConfigManager = {
     // Google 로그인
     signInWithGoogle: function() {
         if (!this.fbAuth) {
-            showToast('Firebase 인증이 초기화되지 않았습니다.', 'error');
+            showToast('❌ Firebase 인증이 초기화되지 않았습니다. Firebase 설정을 먼저 완료해주세요.', 'error', 5000);
             return;
         }
 
+        // Auth Domain 확인
+        const config = this.loadConfig();
+        if (!config.authDomain || config.authDomain === '') {
+            showToast('❌ Auth Domain이 설정되지 않았습니다. Firebase 설정에서 Auth Domain을 입력해주세요.', 'error', 5000);
+            return;
+        }
+
+        showToast('🔄 Google 로그인 중...', 'info', 2000);
+
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
         
         this.fbAuth.signInWithPopup(provider)
             .then((result) => {
                 this.googleUser = result.user;
                 this.updateGoogleAuthStatus();
-                showToast(`✅ Google 계정으로 로그인되었습니다: ${result.user.displayName}`, 'success');
+                this.updateHeaderAuthUI(result.user);
+                showToast(`✅ 환영합니다, ${result.user.displayName}님!`, 'success', 4000);
+                console.log('✅ Google 로그인 성공:', {
+                    name: result.user.displayName,
+                    email: result.user.email,
+                    uid: result.user.uid
+                });
             })
             .catch((error) => {
-                console.error('Google 로그인 실패:', error);
-                showToast('Google 로그인 실패: ' + error.message, 'error');
+                console.error('❌ Google 로그인 실패:', error);
+                
+                let errorMessage = 'Google 로그인 실패: ';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = '로그인 창이 닫혔습니다. 다시 시도해주세요.';
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMessage = '팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.';
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage = '인증되지 않은 도메인입니다. Firebase 콘솔에서 도메인을 추가해주세요.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showToast(errorMessage, 'error', 6000);
             });
     },
 
@@ -325,15 +354,19 @@ const firebaseConfigManager = {
             return;
         }
 
+        const userName = this.googleUser ? this.googleUser.displayName : '사용자';
+
         this.fbAuth.signOut()
             .then(() => {
                 this.googleUser = null;
                 this.updateGoogleAuthStatus();
-                showToast('Google 계정에서 로그아웃되었습니다.', 'info');
+                this.updateHeaderAuthUI(null);
+                showToast(`👋 ${userName}님, 로그아웃되었습니다.`, 'info', 3000);
+                console.log('✅ Google 로그아웃 성공');
             })
             .catch((error) => {
-                console.error('Google 로그아웃 실패:', error);
-                showToast('Google 로그아웃 실패: ' + error.message, 'error');
+                console.error('❌ Google 로그아웃 실패:', error);
+                showToast('로그아웃 실패: ' + error.message, 'error');
             });
     },
 
@@ -343,23 +376,53 @@ const firebaseConfigManager = {
         const googleSignOutBtn = document.getElementById('googleSignOutBtn');
         const googleBtnText = document.getElementById('googleBtnText');
         const googleAuthStatusBadge = document.getElementById('googleAuthStatusBadge');
+        const googleAuthStatus = document.getElementById('googleAuthStatus');
 
-        if (!googleSignInBtn || !googleSignOutBtn || !googleBtnText || !googleAuthStatusBadge) {
-            return;
+        // 모달의 상태 표시 업데이트
+        if (googleAuthStatus) {
+            if (this.googleUser) {
+                const statusIndicator = googleAuthStatus.querySelector('.status-indicator');
+                if (statusIndicator) {
+                    statusIndicator.innerHTML = `
+                        <span class="status-dot connected"></span>
+                        <span class="status-text">
+                            ${this.googleUser.displayName || this.googleUser.email}님이 로그인됨
+                        </span>
+                    `;
+                }
+            } else {
+                const statusIndicator = googleAuthStatus.querySelector('.status-indicator');
+                if (statusIndicator) {
+                    statusIndicator.innerHTML = `
+                        <span class="status-dot disconnected"></span>
+                        <span class="status-text">연결되지 않음</span>
+                    `;
+                }
+            }
         }
 
-        if (this.googleUser) {
-            // 로그인 상태
-            googleSignInBtn.style.display = 'none';
-            googleSignOutBtn.style.display = 'inline-flex';
-            googleAuthStatusBadge.className = 'status-badge status-connected';
-            googleAuthStatusBadge.textContent = '연결됨';
-        } else {
-            // 로그아웃 상태
-            googleSignInBtn.style.display = 'inline-flex';
-            googleSignOutBtn.style.display = 'none';
-            googleAuthStatusBadge.className = 'status-badge status-disconnected';
-            googleAuthStatusBadge.textContent = '연결 안됨';
+        // 버튼 상태 업데이트
+        if (googleSignInBtn && googleSignOutBtn) {
+            if (this.googleUser) {
+                // 로그인 상태
+                googleSignInBtn.style.display = 'none';
+                googleSignOutBtn.style.display = 'inline-flex';
+            } else {
+                // 로그아웃 상태
+                googleSignInBtn.style.display = 'inline-flex';
+                googleSignOutBtn.style.display = 'none';
+            }
+        }
+
+        // 상태 탭의 배지 업데이트
+        if (googleAuthStatusBadge) {
+            if (this.googleUser) {
+                googleAuthStatusBadge.className = 'status-badge status-connected';
+                googleAuthStatusBadge.textContent = '연결됨 (' + (this.googleUser.displayName || this.googleUser.email) + ')';
+            } else {
+                googleAuthStatusBadge.className = 'status-badge status-disconnected';
+                googleAuthStatusBadge.textContent = '연결 안됨';
+            }
         }
     },
 
@@ -600,6 +663,66 @@ const firebaseConfigManager = {
         if (confirm('Firebase 설정을 초기화하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 현재 설정이 삭제됩니다.')) {
             this.resetConfig();
         }
+    },
+
+    // 헤더에 인증 UI 업데이트
+    updateHeaderAuthUI: function(user) {
+        // 기존 인증 UI 제거
+        const existingAuthUI = document.getElementById('headerAuthUI');
+        if (existingAuthUI) {
+            existingAuthUI.remove();
+        }
+
+        const headerActions = document.querySelector('.header-actions');
+        if (!headerActions) return;
+
+        // 새로운 인증 UI 생성
+        const authUI = document.createElement('div');
+        authUI.id = 'headerAuthUI';
+        authUI.className = 'header-auth-ui';
+
+        if (user) {
+            // 로그인 상태
+            authUI.innerHTML = `
+                <div class="user-info">
+                    ${user.photoURL ? `<img src="${user.photoURL}" alt="Profile" class="user-avatar">` : ''}
+                    <span class="user-name">${user.displayName || user.email}</span>
+                    <button class="btn btn-secondary btn-sm" id="headerSignOutBtn">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </button>
+                </div>
+            `;
+            
+            // 로그아웃 버튼 이벤트
+            setTimeout(() => {
+                const signOutBtn = document.getElementById('headerSignOutBtn');
+                if (signOutBtn) {
+                    signOutBtn.addEventListener('click', () => {
+                        this.signOutFromGoogle();
+                    });
+                }
+            }, 100);
+        } else {
+            // 로그아웃 상태
+            authUI.innerHTML = `
+                <button class="btn btn-primary btn-sm" id="headerSignInBtn">
+                    <i class="fab fa-google"></i> Google 로그인
+                </button>
+            `;
+            
+            // 로그인 버튼 이벤트
+            setTimeout(() => {
+                const signInBtn = document.getElementById('headerSignInBtn');
+                if (signInBtn) {
+                    signInBtn.addEventListener('click', () => {
+                        this.signInWithGoogle();
+                    });
+                }
+            }, 100);
+        }
+
+        // 첫 번째 버튼 앞에 삽입
+        headerActions.insertBefore(authUI, headerActions.firstChild);
     }
 };
 
@@ -648,6 +771,23 @@ function initializeFirebase() {
         
         firebaseConfigManager.fbAuth = firebase.auth();
         console.log('✅ Firebase 초기화 성공');
+        
+        // Firebase Auth 상태 변경 리스너 설정
+        firebaseConfigManager.fbAuth.onAuthStateChanged((user) => {
+            if (user) {
+                // 로그인 상태
+                firebaseConfigManager.googleUser = user;
+                console.log('✅ 사용자 로그인됨:', user.displayName || user.email);
+                firebaseConfigManager.updateGoogleAuthStatus();
+                firebaseConfigManager.updateHeaderAuthUI(user);
+            } else {
+                // 로그아웃 상태
+                firebaseConfigManager.googleUser = null;
+                console.log('ℹ️ 사용자 로그아웃됨');
+                firebaseConfigManager.updateGoogleAuthStatus();
+                firebaseConfigManager.updateHeaderAuthUI(null);
+            }
+        });
         
         // 초기화 성공 알림
         setTimeout(() => {

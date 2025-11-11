@@ -1,5 +1,32 @@
 # 🚀 IdeaFlow Changelog
 
+## [v1.3.5] - 2025-11-11
+
+### 🔐 Google 로그인 활성화
+- **Firebase Authentication 통합**: Google OAuth 2.0으로 안전한 로그인
+- **헤더 인증 UI**: 사용자 프로필 아바타 및 이름 표시
+- **지속적 세션**: Firebase Auth 상태 리스너로 자동 로그인 유지
+- **실시간 상태 업데이트**: onAuthStateChanged로 즉각적인 UI 반영
+
+### 🎨 UI/UX 개선
+- 헤더에 Google 로그인/로그아웃 버튼 추가
+- 로그인 시 사용자 아바타 및 이름 표시
+- Firebase 설정 모달에서 실시간 인증 상태 확인
+- 부드러운 전환 애니메이션 및 시각적 피드백
+
+### 🛡️ 보안 및 에러 처리
+- Auth Domain 자동 검증
+- 팝업 차단 감지 및 안내
+- 인증되지 않은 도메인 에러 처리
+- 사용자 취소 시 친절한 메시지 표시
+- 상세한 에러 로그 및 해결 방법 제공
+
+### 📝 사용자 가이드
+- Google 로그인 요구사항 명시
+- Firebase Authentication 설정 방법 안내
+- Auth Domain 설정 가이드
+- 팝업 허용 방법 안내
+
 ## [v1.3.4] - 2025-11-11
 
 ### 🔧 Firebase 초기화 개선

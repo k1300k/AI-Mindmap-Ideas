@@ -79,15 +79,53 @@ IdeaFlow 앱에서:
 - LocalStorage 백업에서 자동으로 불러오는지 확인
 - Firebase 콘솔에서 데이터가 저장되었는지 확인
 
+## Google 로그인 설정 (v1.3.5 추가)
+
+### Firebase Authentication 활성화
+1. Firebase 콘솔에서 프로젝트로 이동
+2. 왼쪽 메뉴에서 "Authentication" 클릭
+3. "Sign-in method" 탭 선택
+4. "Google" 제공업체 클릭하여 활성화
+5. 프로젝트 공개용 이름 입력
+6. 프로젝트 지원 이메일 선택
+7. "저장" 클릭
+
+### 승인된 도메인 추가
+1. Authentication > Settings > Authorized domains
+2. 사용할 도메인 추가 (예: `your-app.vercel.app`)
+3. 로컬 테스트용 `localhost`는 기본적으로 포함됨
+
+### 앱에서 로그인 사용
+1. Firebase 설정에서 **Auth Domain**이 입력되어 있는지 확인
+2. 헤더 우측 상단의 "Google 로그인" 버튼 클릭
+3. Google 계정 선택 팝업에서 계정 선택
+4. 로그인 성공 시 프로필 아바타와 이름 표시
+5. 로그아웃하려면 이름 옆 "로그아웃" 버튼 클릭
+
+### 문제 해결
+
+#### 팝업이 차단될 때
+- 브라우저 주소창 오른쪽의 팝업 차단 아이콘 클릭
+- 팝업 허용 선택 후 다시 로그인 시도
+
+#### "인증되지 않은 도메인" 에러
+- Firebase 콘솔 > Authentication > Settings > Authorized domains
+- 현재 사용 중인 도메인 추가
+
+#### Auth Domain 관련 에러
+- Firebase 설정 모달에서 Auth Domain이 올바르게 입력되었는지 확인
+- 형식: `your-project-id.firebaseapp.com`
+
 ## 보안 고려사항
 
 - 실제 운영환경에서는 Firebase 보안 규칙을 더 엄격하게 설정
-- 사용자 인증을 추가하여 개인 데이터 보호
+- **Google 로그인 사용 시**: 사용자별 데이터 분리 구현 권장
 - API 키는 공개되어도 문제없지만, 보안 규칙으로 접근 제어
+- 사용자 인증 정보는 Firebase가 안전하게 관리
 
 ## 추가 기능
 
-- 사용자 인증 추가 (선택사항)
+- ✅ **Google 로그인** - v1.3.5에서 구현됨
 - 여러 마인드맵 관리
 - 공유 및 협업 기능
 - 데이터 백업 및 복원 기능
