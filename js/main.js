@@ -562,6 +562,10 @@ function attachEventListeners() {
                 state.connectingFromNode = null;
                 showToast('연결 취소됨');
             }
+            if (state.linkAddingMode) {
+                exitLinkAddingMode();
+                showToast('링크 추가 취소됨', 'info');
+            }
             if (state.addingChildMode) {
                 state.addingChildMode = false;
                 state.parentNodeForNewChild = null;
@@ -750,6 +754,108 @@ function createChildNode(parentNode) {
     autoSave();
     
     showToast(`${parentData.content.substring(0, 10)}... 노드에 자식이 추가되었습니다`);
+}
+
+// 링크 추가 모드 시작
+function startLinkAddingMode() {
+    state.linkAddingMode = true;
+    state.linkFirstNode = null;
+    state.linkSecondNode = null;
+    
+    showToast('🔗 첫 번째 노드를 선택하세요 (ESC: 취소)', 'info', 4000);
+    
+    // 모든 노드에 하이라이트 효과
+    document.querySelectorAll('.node').forEach(node => {
+        node.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.6)';
+        node.style.cursor = 'pointer';
+        node.classList.add('link-selectable');
+    });
+    
+    // 첫 번째 노드 선택 이벤트
+    const handleFirstNodeSelection = (e) => {
+        const clickedNode = e.target.closest('.node');
+        if (clickedNode && state.linkAddingMode && !state.linkFirstNode) {
+            e.stopPropagation();
+            state.linkFirstNode = clickedNode;
+            
+            // 첫 번째 노드 강조
+            clickedNode.style.boxShadow = '0 0 30px rgba(34, 197, 94, 1)';
+            clickedNode.style.border = '3px solid #22c55e';
+            clickedNode.classList.add('link-selected');
+            
+            showToast('✅ 첫 번째 노드 선택됨. 연결할 두 번째 노드를 선택하세요', 'success', 4000);
+            
+            // 두 번째 노드 선택 대기
+            document.removeEventListener('click', handleFirstNodeSelection);
+            setTimeout(() => {
+                document.addEventListener('click', handleSecondNodeSelection);
+            }, 100);
+        }
+    };
+    
+    // 두 번째 노드 선택 이벤트
+    const handleSecondNodeSelection = (e) => {
+        const clickedNode = e.target.closest('.node');
+        if (clickedNode && state.linkAddingMode && state.linkFirstNode) {
+            e.stopPropagation();
+            
+            // 같은 노드를 선택한 경우
+            if (clickedNode === state.linkFirstNode) {
+                showToast('⚠️ 같은 노드는 연결할 수 없습니다. 다른 노드를 선택하세요', 'warning', 4000);
+                return;
+            }
+            
+            state.linkSecondNode = clickedNode;
+            
+            // 두 번째 노드 강조
+            clickedNode.style.boxShadow = '0 0 30px rgba(34, 197, 94, 1)';
+            clickedNode.style.border = '3px solid #22c55e';
+            clickedNode.classList.add('link-selected');
+            
+            // 연결 생성
+            const firstNodeId = state.linkFirstNode.id;
+            const secondNodeId = state.linkSecondNode.id;
+            
+            // 이미 연결되어 있는지 확인
+            const alreadyConnected = state.connections.some(
+                conn => (conn.from === firstNodeId && conn.to === secondNodeId) ||
+                        (conn.from === secondNodeId && conn.to === firstNodeId)
+            );
+            
+            if (alreadyConnected) {
+                showToast('⚠️ 이미 연결된 노드입니다', 'warning', 3000);
+            } else {
+                createConnection(firstNodeId, secondNodeId);
+                updateConnections();
+                autoSave();
+                showToast('🎉 링크가 생성되었습니다!', 'success', 3000);
+            }
+            
+            // 링크 추가 모드 종료
+            exitLinkAddingMode();
+            document.removeEventListener('click', handleSecondNodeSelection);
+        }
+    };
+    
+    // 첫 번째 노드 선택 이벤트 등록
+    setTimeout(() => {
+        document.addEventListener('click', handleFirstNodeSelection);
+    }, 100);
+}
+
+// 링크 추가 모드 종료
+function exitLinkAddingMode() {
+    state.linkAddingMode = false;
+    state.linkFirstNode = null;
+    state.linkSecondNode = null;
+    
+    // 모든 노드의 하이라이트 제거
+    document.querySelectorAll('.node').forEach(node => {
+        node.style.boxShadow = '';
+        node.style.border = '';
+        node.style.cursor = 'move';
+        node.classList.remove('link-selectable', 'link-selected');
+    });
 }
 
 // 컨텍스트 메뉴 표시

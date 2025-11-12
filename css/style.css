@@ -726,6 +726,32 @@ body {
     }
 }
 
+/* 링크 추가 모드 스타일 */
+.node.link-selectable {
+    transition: all 0.3s ease;
+    cursor: pointer !important;
+}
+
+.node.link-selectable:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.8) !important;
+}
+
+.node.link-selected {
+    border: 3px solid #22c55e !important;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 1) !important;
+    animation: pulse-link-selected 1.5s infinite;
+}
+
+@keyframes pulse-link-selected {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(34, 197, 94, 1);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(34, 197, 94, 0.7);
+    }
+}
+
 .node-content {
     font-size: 0.875rem;
     font-weight: 500;
