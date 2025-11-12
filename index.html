@@ -58,10 +58,14 @@
             </button>
         </div>
         <div class="toolbar-section">
-            <h3>노드 추가</h3>
+            <h3>노드 관리</h3>
             <button class="tool-btn" id="addNodeBtn" title="새 노드 추가 (N)">
                 <i class="fas fa-plus-circle"></i>
                 노드 추가
+            </button>
+            <button class="tool-btn" id="addLinkBtn" title="노드 간 연결 만들기 (L)">
+                <i class="fas fa-link"></i>
+                링크 추가
             </button>
         </div>
         <div class="toolbar-section">
@@ -83,6 +87,7 @@
             <h3>도움말</h3>
             <div class="help-text">
                 <p><kbd>N키</kbd> 부모 선택 후 자식 추가</p>
+                <p><kbd>L키</kbd> 링크 추가 모드</p>
                 <p><kbd>더블클릭</kbd> 노드 편집</p>
                 <p><kbd>우클릭</kbd> 메뉴 열기</p>
                 <p><kbd>드래그</kbd> 노드 이동</p>
@@ -249,9 +254,11 @@
                     <ul class="feature-list">
                         <li><strong>스마트 자식 노드 추가:</strong> 부모 노드 선택 시 색상과 크기 자동 상속</li>
                         <li><strong>무한 확장 가능:</strong> 노란색 노드에서 계속 노란색 자식 생성 가능</li>
-                        <li><strong>링크 연결 기능:</strong> 노드에 외부 URL 추가 및 레퍼런스 관리</li>
+                        <li><strong>🔗 링크 추가 기능 (신규!):</strong> 두 노드를 선택하여 시각적 연결선 생성</li>
+                        <li><strong>외부 URL 연결:</strong> 노드에 외부 링크 추가 및 레퍼런스 관리</li>
                         <li><strong>드래그 앤 드롭:</strong> 직관적인 노드 이동 및 배치</li>
                         <li><strong>10가지 색상 팔레트:</strong> 아이디어를 색상으로 구분</li>
+                        <li><strong>Google 로그인:</strong> Firebase Authentication으로 안전한 로그인</li>
                         <li><strong>Firebase 클라우드 저장:</strong> 실시간 클라우드 데이터베이스에 자동 저장</li>
                         <li><strong>멀티 디바이스 동기화:</strong> 여러 기기에서 동일한 데이터 접근 가능</li>
                         <li><strong>오프라인 지원:</strong> 인터넷 연결 없이도 작업 가능 (LocalStorage 백업)</li>
@@ -290,8 +297,8 @@
                 </div>
 
                 <div class="about-section version-info">
-                    <p><strong>버전:</strong> 1.3.0</p>
-                    <p><strong>최종 업데이트:</strong> 2025-11-09</p>
+                    <p><strong>버전:</strong> 1.3.6</p>
+                    <p><strong>최종 업데이트:</strong> 2025-11-11</p>
                     <p><strong>개발 방식:</strong> AI-Powered Vibe Coding</p>
                     <p><strong>라이선스:</strong> MIT License</p>
                 </div>

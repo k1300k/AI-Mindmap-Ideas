@@ -697,6 +697,35 @@ body {
     border: 2px solid var(--primary-color);
 }
 
+/* 링크 추가 모드 스타일 */
+.node.link-selecting {
+    animation: pulse-link 1.5s ease-in-out infinite;
+    cursor: pointer !important;
+}
+
+.node.link-selected-first {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8) !important;
+    transform: scale(1.1);
+    border-color: #3B82F6 !important;
+    border-width: 4px !important;
+}
+
+.node.link-selected-second {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.8) !important;
+    transform: scale(1.1);
+    border-color: #10B981 !important;
+    border-width: 4px !important;
+}
+
+@keyframes pulse-link {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+}
+
 .node-content {
     font-size: 0.875rem;
     font-weight: 500;

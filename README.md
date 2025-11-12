@@ -1,6 +1,6 @@
 # 🚀 IdeaFlow - Firebase 통합 인터랙티브 마인드맵 대시보드
 
-![Version](https://img.shields.io/badge/version-1.3.4-blue)
+![Version](https://img.shields.io/badge/version-1.3.6-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Development](https://img.shields.io/badge/dev-Vibe%20Coding-purple)
 ![Mobile](https://img.shields.io/badge/mobile-optimized-brightgreen)
@@ -92,9 +92,9 @@ npx serve .
 ## 📖 상세 사용법
 
 ### 기본 사용법
-1. **노드 추가**: 좌측 패널에서 색상 선택 후 캔버스 클릭
-2. **노드 편집**: 노드 더블클릭 또는 우클릭 → 편집
-3. **연결 만들기**: 두 노드 선택 후 **연결** 버튼 클릭
+1. **노드 추가**: 좌측 패널에서 "노드 추가" 버튼 클릭 후 부모 노드 선택 (단축키: N)
+2. **링크 추가**: 좌측 패널에서 "링크 추가" 버튼 클릭 후 연결할 2개 노드 순서대로 선택 (단축키: L)
+3. **노드 편집**: 노드 더블클릭 또는 우클릭 → 편집
 4. **줌 조절**: 마우스 휠 또는 우측 줌 컨트롤 사용
 5. **캔버스 이동**: Space 키 + 드래그 또는 방향 키
 
@@ -185,6 +185,15 @@ ideaflow/
 
 ## 🔄 최근 업데이트
 
+### v1.3.6 (2025-11-11) - 링크 추가 기능 강화 🔗
+- ✅ **링크 추가 버튼** - 좌측 툴바에 "링크 추가" 버튼 추가
+- ✅ **2단계 노드 선택** - 첫 번째 노드 선택 후 두 번째 노드 선택으로 연결
+- ✅ **시각적 피드백** - 선택 중인 노드에 애니메이션 효과 및 강조 표시
+- ✅ **중복 연결 방지** - 이미 연결된 노드는 재연결 불가
+- ✅ **L 키 단축키** - 키보드 L 키로 빠른 링크 추가 모드 진입
+- ✅ **Toast 알림** - 각 단계마다 명확한 안내 메시지 표시
+- ✅ **ESC 취소** - 링크 추가 중 언제든지 ESC 키로 취소 가능
+
 ### v1.3.5 (2025-11-11) - Google 로그인 활성화 🔐
 - ✅ **Google 인증 통합** - Firebase Authentication으로 Google 로그인 지원
 - ✅ **헤더 인증 UI** - 로그인 상태 표시 및 사용자 프로필 아바타
@@ -253,7 +262,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 **Made with ❤️ by AI-Powered Vibe Coding**
 
-*버전: 1.3.5 | 최종 업데이트: 2025-11-11*
+*버전: 1.3.6 | 최종 업데이트: 2025-11-11*
 
 ### 🌟 특별한 점
 - **AI 기반 개발**: Claude AI와의 협업으로 개발
