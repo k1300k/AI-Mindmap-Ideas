@@ -27,6 +27,18 @@
                 IdeaFlow
             </h1>
             <div class="header-actions">
+                <!-- 인증 UI (JavaScript에서 동적 업데이트) -->
+                <div id="headerAuthUI" class="header-auth-ui">
+                    <div class="header-signin-buttons">
+                        <button class="btn btn-primary btn-sm header-google-btn" id="headerGoogleSignInBtn" title="Google 계정으로 로그인">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="btn btn-secondary btn-sm header-github-btn" id="headerGitHubSignInBtn" title="GitHub 계정으로 로그인">
+                            <i class="fab fa-github"></i> GitHub
+                        </button>
+                    </div>
+                </div>
+                
                 <button class="btn btn-secondary" id="saveBtn">
                     <i class="fas fa-save"></i> <span>JSON 저장</span>
                 </button>

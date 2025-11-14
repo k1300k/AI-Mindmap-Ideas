@@ -38,6 +38,32 @@ const contextMenu = document.getElementById('contextMenu');
 const colorModal = document.getElementById('colorModal');
 const toast = document.getElementById('toast');
 
+// 헤더 로그인 버튼 초기화
+function initializeHeaderAuthButtons() {
+    const googleSignInBtn = document.getElementById('headerGoogleSignInBtn');
+    const githubSignInBtn = document.getElementById('headerGitHubSignInBtn');
+    
+    if (googleSignInBtn) {
+        googleSignInBtn.addEventListener('click', () => {
+            if (typeof firebaseConfigManager !== 'undefined' && firebaseConfigManager.signInWithGoogle) {
+                firebaseConfigManager.signInWithGoogle();
+            } else {
+                showToast('⚠️ Firebase 설정을 먼저 완료해주세요. 좌측 "⚙️ Firebase 설정" 버튼을 클릭하세요.', 'warning', 5000);
+            }
+        });
+    }
+    
+    if (githubSignInBtn) {
+        githubSignInBtn.addEventListener('click', () => {
+            if (typeof firebaseConfigManager !== 'undefined' && firebaseConfigManager.signInWithGitHub) {
+                firebaseConfigManager.signInWithGitHub();
+            } else {
+                showToast('⚠️ Firebase 설정을 먼저 완료해주세요. 좌측 "⚙️ Firebase 설정" 버튼을 클릭하세요.', 'warning', 5000);
+            }
+        });
+    }
+}
+
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
     try {
@@ -51,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Firebase 초기화 실패:', error);
         // Firebase 초기화 실패해도 앱은 계속 작동해야 함
     }
+    
+    // 헤더 로그인 버튼 초기화
+    initializeHeaderAuthButtons();
     
     attachEventListeners();
     autoLoadFromLocalStorage();
