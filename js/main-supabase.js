@@ -763,7 +763,6 @@ function attachEventListeners() {
     document.getElementById('closeVersionHistoryModal').addEventListener('click', closeVersionHistoryModal);
     
     // Supabase 설정은 supabase-demo.html에서 처리
-    // Firebase 설정 버튼은 제거됨
     
     // 줌 컨트롤
     document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
