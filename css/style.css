@@ -1957,6 +1957,180 @@ body {
     }
 }
 
+/* 인증 관련 스타일 */
+.auth-signin-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+}
+
+.auth-signin-section h4 {
+    margin-bottom: 1.5rem;
+    color: var(--gray-800);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.auth-provider-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 2px solid var(--gray-200);
+    transition: all 0.3s ease;
+}
+
+.auth-provider-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+.provider-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--gray-800);
+}
+
+.provider-header i {
+    font-size: 1.5rem;
+}
+
+.auth-status {
+    margin-bottom: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.connected {
+    background-color: var(--secondary-color);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.status-dot.disconnected {
+    background-color: var(--gray-300);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.status-text {
+    color: var(--gray-600);
+}
+
+.auth-provider-btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.google-signin-btn {
+    background: #4285F4;
+    color: white;
+}
+
+.google-signin-btn:hover {
+    background: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.github-signin-btn {
+    background: #24292e;
+    color: white;
+}
+
+.github-signin-btn:hover {
+    background: #1a1f23;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* 헤더 인증 UI */
+.header-auth-ui {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-right: 1rem;
+}
+
+.header-signin-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.header-google-btn {
+    background: #4285F4;
+    color: white;
+    border: none;
+}
+
+.header-google-btn:hover {
+    background: #357ABD;
+}
+
+.header-github-btn {
+    background: #24292e;
+    color: white;
+    border: none;
+}
+
+.header-github-btn:hover {
+    background: #1a1f23;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+}
+
 /* 태블릿 최적화 */
 @media (min-width: 769px) and (max-width: 1024px) {
     .toolbar {
@@ -1970,5 +2144,27 @@ body {
     .zoom-controls {
         right: 1.5rem;
         bottom: 1.5rem;
+    }
+}
+
+/* 모바일에서 헤더 인증 UI 최적화 */
+@media (max-width: 768px) {
+    .header-signin-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .header-google-btn,
+    .header-github-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .user-info {
+        flex-wrap: wrap;
+    }
+    
+    .user-name {
+        display: none;
     }
 }

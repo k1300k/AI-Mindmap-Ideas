@@ -101,15 +101,16 @@ npx serve .
 ### Firebase 설정 가이드
 자세한 Firebase 설정 방법은 [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)를 참고하세요.
 
-### Google 로그인 사용하기
+### 소셜 로그인 사용하기 (Google / GitHub)
 1. **Firebase 설정 완료**: Firebase Authentication이 활성화되어야 합니다
 2. **Auth Domain 설정**: Firebase 설정에서 Auth Domain 입력 (예: `your-project.firebaseapp.com`)
-3. **헤더에서 로그인**: 우측 상단의 "Google 로그인" 버튼 클릭
+3. **헤더에서 로그인**: 우측 상단의 "Google" 또는 "GitHub" 버튼 클릭
 4. **팝업 허용**: 브라우저에서 팝업을 허용해야 합니다
 5. **자동 로그인**: 다음 방문 시 자동으로 로그인 상태 유지
 
 **주의사항**:
-- Firebase 콘솔에서 Google 인증 제공업체를 활성화해야 합니다
+- Firebase 콘솔에서 Google 및 GitHub 인증 제공업체를 활성화해야 합니다
+- GitHub 로그인 설정 방법은 [GITHUB_AUTH_SETUP.md](./GITHUB_AUTH_SETUP.md) 참고
 - 사용 중인 도메인이 Firebase의 승인된 도메인 목록에 있어야 합니다
 - 로컬 테스트 시 `localhost`는 자동으로 허용됩니다
 
@@ -185,6 +186,14 @@ ideaflow/
 
 ## 🔄 최근 업데이트
 
+### v1.4.0 (2025-11-14) - GitHub 로그인 추가 🔐
+- ✅ **GitHub OAuth 인증 통합** - Firebase Authentication으로 GitHub 로그인 지원
+- ✅ **다중 인증 제공자** - Google과 GitHub 동시 지원
+- ✅ **향상된 로그인 UI** - 프로바이더별 카드 UI로 직관적인 인증 경험
+- ✅ **통합 인증 관리** - 하나의 인증 시스템으로 여러 소셜 로그인 관리
+- ✅ **상세 설정 가이드** - GitHub OAuth App 설정 가이드 문서 추가
+- ✅ **개선된 에러 처리** - 각 인증 제공자별 구체적인 에러 메시지
+
 ### v1.3.6 (2025-11-11) - 링크 추가 기능 강화 🔗
 - ✅ **링크 추가 버튼** - 좌측 툴바에 "링크 추가" 버튼 추가
 - ✅ **2단계 노드 선택** - 첫 번째 노드 선택 후 두 번째 노드 선택으로 연결
@@ -235,7 +244,7 @@ ideaflow/
 ## 🧪 개발 로드맵
 
 ### 예정된 기능
-- [ ] **사용자 인증 시스템** - Google/GitHub 로그인
+- [x] **사용자 인증 시스템** - Google/GitHub 로그인 ✅ 완료 (v1.4.0)
 - [ ] **공유 및 협업** - 실시간 다중 사용자 편집
 - [ ] **고급 템플릿** - 더 많은 사전 정의 템플릿
 - [ ] **데이터 분석** - 마인드맵 사용 패턴 분석
@@ -262,7 +271,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 **Made with ❤️ by AI-Powered Vibe Coding**
 
-*버전: 1.3.6 | 최종 업데이트: 2025-11-11*
+*버전: 1.4.0 | 최종 업데이트: 2025-11-14*
 
 ### 🌟 특별한 점
 - **AI 기반 개발**: Claude AI와의 협업으로 개발

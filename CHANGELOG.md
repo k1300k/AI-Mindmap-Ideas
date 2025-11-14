@@ -1,5 +1,36 @@
 # 🚀 IdeaFlow Changelog
 
+## [v1.4.0] - 2025-11-14
+
+### 🔐 GitHub 로그인 추가
+- **GitHub OAuth 인증 통합**: Firebase Authentication으로 GitHub 로그인 지원
+- **다중 인증 제공자**: Google과 GitHub 동시 지원으로 사용자 선택권 확대
+- **통합 인증 관리**: 하나의 인증 시스템으로 여러 소셜 로그인 관리
+
+### 🎨 UI/UX 개선
+- **프로바이더별 카드 UI**: Google과 GitHub를 구분된 카드로 표시
+- **실시간 상태 표시**: 각 인증 제공자별 연결 상태 독립적 관리
+- **향상된 헤더 UI**: Google과 GitHub 버튼을 나란히 배치하여 직관적 선택
+- **모바일 최적화**: 작은 화면에서도 편리한 로그인 버튼 레이아웃
+
+### 🛡️ 보안 및 에러 처리
+- **Provider별 에러 처리**: Google과 GitHub 각각의 에러 상황에 맞는 메시지
+- **계정 충돌 감지**: 동일 이메일로 다른 제공자 사용 시 안내
+- **Auth State 관리**: Provider ID 기반 사용자 상태 정확한 추적
+
+### 📚 문서화
+- **GitHub 인증 설정 가이드**: 상세한 GitHub OAuth App 설정 문서 추가 (GITHUB_AUTH_SETUP.md)
+- **단계별 설정 가이드**: 스크린샷과 함께 따라하기 쉬운 설명
+- **문제 해결 섹션**: 일반적인 문제와 해결 방법 정리
+- **보안 권장사항**: Client Secret 관리 및 도메인 설정 가이드
+
+### 🔧 기술적 개선
+- `githubUser` 상태 관리 추가
+- `signInWithGitHub()` 및 `signOutFromGitHub()` 함수 구현
+- `updateGitHubAuthStatus()` 상태 업데이트 로직
+- Firebase Auth 상태 리스너에서 Provider ID 기반 분기 처리
+- CSS 스타일 확장 (GitHub 버튼, 프로바이더 카드 등)
+
 ## [v1.3.6] - 2025-11-11
 
 ### 🔗 링크 추가 기능 강화
