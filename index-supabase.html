@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>IdeaFlow - 마인드맵 대시보드 (Supabase Edition)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">
+                <i class="fas fa-project-diagram"></i>
+                IdeaFlow <span style="font-size: 0.5em; color: #10B981;">Supabase</span>
+            </h1>
+            <div class="header-actions">
+                <!-- 인증 UI (JavaScript에서 동적 업데이트) -->
+                <div id="headerAuthUI" class="header-auth-ui">
+                    <div class="header-signin-buttons">
+                        <button class="btn btn-primary btn-sm header-google-btn" id="headerGoogleSignInBtn" title="Google 계정으로 로그인">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="btn btn-secondary btn-sm header-github-btn" id="headerGitHubSignInBtn" title="GitHub 계정으로 로그인">
+                            <i class="fab fa-github"></i> GitHub
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" id="saveBtn">
+                    <i class="fas fa-save"></i> <span>JSON 저장</span>
+                </button>
+                <button class="btn btn-secondary" id="loadBtn">
+                    <i class="fas fa-folder-open"></i> <span>JSON 불러오기</span>
+                </button>
+                <button class="btn btn-primary" id="exportBtn">
+                    <i class="fas fa-download"></i> <span>PNG 내보내기</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 도구 모음 -->
+    <div class="toolbar">
+        <div class="toolbar-section">
+            <h3>프로그램 정보</h3>
+            <button class="tool-btn" id="showAboutBtn">
+                <i class="fas fa-info-circle"></i>
+                프로그램 설명
+            </button>
+            <button class="tool-btn" id="showVersionHistoryBtn">
+                <i class="fas fa-history"></i>
+                개발 이력
+            </button>
+            <a href="supabase-demo.html" class="tool-btn" title="Supabase 설정" target="_blank">
+                <i class="fas fa-cog"></i>
+                Supabase 설정
+            </a>
+        </div>
+        <div class="toolbar-section">
+            <h3>노드 관리</h3>
+            <button class="tool-btn" id="addNodeBtn" title="새 노드 추가 (N)">
+                <i class="fas fa-plus-circle"></i>
+                노드 추가
+            </button>
+            <button class="tool-btn" id="addLinkBtn" title="노드 간 연결 만들기 (L)">
+                <i class="fas fa-link"></i>
+                링크 추가
+            </button>
+        </div>
+        <div class="toolbar-section">
+            <h3>템플릿</h3>
+            <button class="tool-btn" id="loadTemplateDefault">
+                <i class="fas fa-lightbulb"></i>
+                기본 아이디어
+            </button>
+            <button class="tool-btn" id="loadTemplateBusiness">
+                <i class="fas fa-briefcase"></i>
+                비즈니스
+            </button>
+            <button class="tool-btn" id="loadTemplateProject">
+                <i class="fas fa-tasks"></i>
+                프로젝트
+            </button>
+        </div>
+        <div class="toolbar-section">
+            <h3>도움말</h3>
+            <div class="help-text">
+                <p><kbd>N키</kbd> 부모 선택 후 자식 추가</p>
+                <p><kbd>L키</kbd> 링크 추가 모드</p>
+                <p><kbd>더블클릭</kbd> 노드 편집</p>
+                <p><kbd>우클릭</kbd> 메뉴 열기</p>
+                <p><kbd>드래그</kbd> 노드 이동</p>
+                <p><kbd>Space</kbd> 캔버스 이동 모드</p>
+                <p><kbd>Shift+방향키</kbd> 캔버스 이동</p>
+                <p><kbd>Ctrl + / -</kbd> 줌 인/아웃</p>
+                <p><kbd>Del</kbd> 삭제</p>
+                <p><kbd>Esc</kbd> 작업 취소</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 캔버스 -->
+    <main class="main-container">
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <div class="canvas-title">
+                <h2 id="canvasTitle" contenteditable="true">질문으로 접근하는 생활형 불편 대응 아이디어</h2>
+            </div>
+            <svg id="canvas" class="canvas">
+                <!-- 연결선이 여기에 그려집니다 -->
+                <g id="connections"></g>
+            </svg>
+            <div id="nodesContainer" class="nodes-container">
+                <!-- 노드들이 여기에 추가됩니다 -->
+            </div>
+        </div>
+        
+        <!-- 줌 컨트롤 -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomInBtn" title="확대 (Ctrl + +)">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="zoom-btn" id="zoomResetBtn" title="원래 크기 (Ctrl + 0)">
+                <i class="fas fa-compress"></i>
+            </button>
+            <button class="zoom-btn" id="zoomOutBtn" title="축소 (Ctrl + -)">
+                <i class="fas fa-minus"></i>
+            </button>
+            <div class="zoom-divider"></div>
+            <button class="zoom-btn" id="panModeBtn" title="캔버스 이동 모드 (Space 키)">
+                <i class="fas fa-hand-paper"></i>
+            </button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+        </div>
+        
+        <!-- 패닝 네비게이션 -->
+        <div class="pan-controls" id="panControls">
+            <button class="pan-btn" id="panUpBtn" title="위로 이동">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <div class="pan-middle">
+                <button class="pan-btn" id="panLeftBtn" title="왼쪽으로 이동">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="pan-btn pan-center" id="panCenterBtn" title="중앙으로 이동">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                </button>
+                <button class="pan-btn" id="panRightBtn" title="오른쪽으로 이동">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <button class="pan-btn" id="panDownBtn" title="아래로 이동">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- 컨텍스트 메뉴 -->
+    <div id="contextMenu" class="context-menu">
+        <button class="context-menu-item" data-action="edit">
+            <i class="fas fa-edit"></i> 편집 (메모/URL)
+        </button>
+        <button class="context-menu-item" data-action="changeColor">
+            <i class="fas fa-palette"></i> 색상 변경
+        </button>
+        <button class="context-menu-item" data-action="resize">
+            <i class="fas fa-expand-arrows-alt"></i> 크기 조절
+        </button>
+        <button class="context-menu-item" data-action="connect">
+            <i class="fas fa-project-diagram"></i> 연결 시작
+        </button>
+        <div class="context-menu-divider"></div>
+        <button class="context-menu-item danger" data-action="delete">
+            <i class="fas fa-trash"></i> 삭제
+        </button>
+    </div>
+
+    <!-- 노드 편집 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> 노드 편집</h3>
+                <button class="modal-close" id="closeEditModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="nodeTitle">제목</label>
+                <input type="text" id="nodeTitle" placeholder="노드 제목" class="input">
+                
+                <label for="nodeMemo">메모</label>
+                <textarea id="nodeMemo" placeholder="메모 내용을 입력하세요..." class="textarea" rows="5"></textarea>
+                
+                <label for="nodeUrl">URL</label>
+                <input type="url" id="nodeUrl" placeholder="https://example.com" class="input">
+                
+                <label for="nodeUrlTitle">URL 제목 (선택사항)</label>
+                <input type="text" id="nodeUrlTitle" placeholder="링크 설명" class="input">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditBtn">취소</button>
+                <button class="btn btn-primary" id="saveEditBtn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 색상 선택 모달 -->
+    <div id="colorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>색상 선택</h3>
+                <button class="modal-close" id="closeColorModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="color-palette">
+                    <button class="color-option" data-color="#3B82F6" style="background: #3B82F6;"></button>
+                    <button class="color-option" data-color="#10B981" style="background: #10B981;"></button>
+                    <button class="color-option" data-color="#F59E0B" style="background: #F59E0B;"></button>
+                    <button class="color-option" data-color="#EF4444" style="background: #EF4444;"></button>
+                    <button class="color-option" data-color="#8B5CF6" style="background: #8B5CF6;"></button>
+                    <button class="color-option" data-color="#EC4899" style="background: #EC4899;"></button>
+                    <button class="color-option" data-color="#14B8A6" style="background: #14B8A6;"></button>
+                    <button class="color-option" data-color="#6B7280" style="background: #6B7280;"></button>
+                    <button class="color-option" data-color="#84CC16" style="background: #84CC16;"></button>
+                    <button class="color-option" data-color="#F97316" style="background: #F97316;"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 프로그램 설명 모달 -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> IdeaFlow 프로그램 설명</h3>
+                <button class="modal-close" id="closeAboutModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="about-section">
+                    <h4>🎯 프로그램 소개</h4>
+                    <p>
+                        <strong>IdeaFlow</strong>는 <strong>바이브코딩(Vibe Coding)</strong> 프롬프트 방식으로 구성된 
+                        차세대 마인드맵 대시보드입니다. AI와의 대화를 통해 점진적으로 발전하며, 
+                        사용자의 아이디어를 시각화하고 확장하는 데 최적화되어 있습니다.
+                    </p>
+                </div>
+
+                <div class="about-section">
+                    <h4>✨ 핵심 기능</h4>
+                    <ul class="feature-list">
+                        <li><strong>스마트 자식 노드 추가:</strong> 부모 노드 선택 시 색상과 크기 자동 상속</li>
+                        <li><strong>무한 확장 가능:</strong> 노란색 노드에서 계속 노란색 자식 생성 가능</li>
+                        <li><strong>🔗 링크 추가 기능:</strong> 
+                            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>좌측 툴바 "링크 추가" 버튼 또는 <kbd>L키</kbd> 사용</li>
+                                <li>첫 번째 노드 선택 → 두 번째 노드 선택</li>
+                                <li>자동으로 시각적 연결선 생성</li>
+                                <li>ESC 키로 언제든지 취소 가능</li>
+                            </ul>
+                        </li>
+                        <li><strong>외부 URL 연결:</strong> 노드에 외부 링크 추가 및 레퍼런스 관리</li>
+                        <li><strong>드래그 앤 드롭:</strong> 직관적인 노드 이동 및 배치</li>
+                        <li><strong>10가지 색상 팔레트:</strong> 아이디어를 색상으로 구분</li>
+                        <li><strong>🆕 Google/GitHub 로그인:</strong> Supabase Authentication으로 안전한 로그인</li>
+                        <li><strong>🆕 Supabase 클라우드 저장:</strong> PostgreSQL 데이터베이스에 자동 저장</li>
+                        <li><strong>🆕 실시간 동기화:</strong> 여러 기기에서 실시간으로 데이터 동기화</li>
+                        <li><strong>멀티 디바이스 지원:</strong> 언제 어디서나 동일한 데이터 접근</li>
+                        <li><strong>오프라인 지원:</strong> 인터넷 연결 없이도 작업 가능 (LocalStorage 백업)</li>
+                        <li><strong>3가지 템플릿:</strong> 빠른 시작을 위한 사전 구성 템플릿</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h4>🚀 바이브코딩 방식</h4>
+                    <p>
+                        이 프로그램은 전통적인 개발 방식이 아닌, <strong>AI와의 대화형 프롬프트</strong>를 통해 
+                        단계적으로 구축되었습니다. 각 사용자의 요구사항이 프롬프트로 입력되면, 
+                        AI가 코드를 생성하고 즉시 반영하는 혁신적인 개발 프로세스입니다.
+                    </p>
+                </div>
+
+                <div class="about-section">
+                    <h4>📚 기술 스택</h4>
+                    <ul class="tech-stack">
+                        <li><span class="tech-badge">HTML5</span> 시맨틱 마크업</li>
+                        <li><span class="tech-badge">CSS3</span> 모던 스타일링 & 애니메이션</li>
+                        <li><span class="tech-badge">Vanilla JS</span> 순수 자바스크립트</li>
+                        <li><span class="tech-badge">SVG</span> 벡터 그래픽 연결선</li>
+                        <li><span class="tech-badge">Supabase</span> 🆕 PostgreSQL 데이터베이스</li>
+                        <li><span class="tech-badge">LocalStorage API</span> 로컬 백업</li>
+                        <li><span class="tech-badge">Font Awesome</span> 아이콘</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h4>🎨 디자인 철학</h4>
+                    <p>
+                        <strong>"Beautiful & Simple"</strong> - 복잡한 기능을 직관적인 인터페이스로 제공합니다.
+                        파스텔 톤 색상 팔레트와 부드러운 애니메이션으로 사용자에게 
+                        즐거운 경험을 선사합니다.
+                    </p>
+                </div>
+
+                <div class="about-section">
+                    <h4>⌨️ 키보드 단축키</h4>
+                    <ul class="feature-list">
+                        <li><kbd>N</kbd> - 새 노드 추가 (부모 선택 후 자식 생성)</li>
+                        <li><kbd>L</kbd> - 링크 추가 (2개 노드 연결)</li>
+                        <li><kbd>Space</kbd> - 캔버스 이동 모드</li>
+                        <li><kbd>Ctrl + / -</kbd> - 줌 인/아웃</li>
+                        <li><kbd>Del</kbd> - 선택한 노드 삭제</li>
+                        <li><kbd>ESC</kbd> - 현재 작업 취소</li>
+                    </ul>
+                </div>
+
+                <div class="about-section version-info">
+                    <p><strong>버전:</strong> 2.0.0 Supabase Edition</p>
+                    <p><strong>최종 업데이트:</strong> 2025-11-14</p>
+                    <p><strong>백엔드:</strong> Supabase PostgreSQL</p>
+                    <p><strong>개발 방식:</strong> AI-Powered Vibe Coding</p>
+                    <p><strong>라이선스:</strong> MIT License</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 개발 이력 모달 -->
+    <div id="versionHistoryModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> 개발 이력 (프롬프트 히스토리)</h3>
+                <button class="modal-close" id="closeVersionHistoryModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="timeline">
+                    
+                    <!-- 버전 1.2 - 메모 및 JSON 저장 -->
+                    <div class="timeline-item">
+                        <div class="timeline-badge v1-2">v1.2</div>
+                        <div class="timeline-content">
+                            <h4>📝 노드 메모 & JSON 파일 저장 시스템</h4>
+                            <p class="timeline-date">2025-11-09</p>
+                            
+                            <div class="prompt-box">
+                                <div class="prompt-header">
+                                    <i class="fas fa-user"></i> 사용자 프롬프트
+                                </div>
+                                <p class="prompt-text">
+                                    "1. 내용물 작성에 메모작성과 url 작성 두가지 입력 양식을 제공하고 
+                                    작성 된 url은 클릭하면 해당 링크로 새창이 활성화 하게 해 주세요.
+                                    2. 저장 파일 양식은 jason으로 만들어 주시고, 불어오는 양식도 동일하게 
+                                    jason으로 구성해 주세요."
+                                </p>
+                            </div>
+
+                            <div class="improvement-box">
+                                <h5>📈 개선 내용</h5>
+                                <ul>
+                                    <li><strong>통합 편집 모달:</strong> 제목, 메모, URL을 한 화면에서 편집</li>
+                                    <li><strong>메모 기능:</strong> 각 노드에 상세 설명 작성 가능 (50자 미리보기)</li>
+                                    <li><strong>URL 클릭:</strong> 링크 클릭 시 새 창에서 웹사이트 열기</li>
+                                    <li><strong>JSON 저장:</strong> 전체 마인드맵을 JSON 파일로 다운로드</li>
+                                    <li><strong>JSON 불러오기:</strong> 파일 선택으로 이전 작업 완벽 복원</li>
+                                    <li><strong>자동 백업:</strong> 로컬 스토리지에 자동 저장</li>
+                                    <li><strong>더블클릭 편집:</strong> 노드 더블클릭으로 편집 모달 즉시 열기</li>
+                                    <li>메모 툴팁 표시 (전체 내용 확인 가능)</li>
+                                </ul>
+                            </div>
+
+                            <div class="tech-detail">
+                                <strong>기술적 구현:</strong>
+                                통합 편집 모달 (<code>editModal</code>) + JSON Blob 다운로드 + 
+                                FileReader API로 파일 읽기 + 자동 복원 시스템
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 버전 1.1 - 스마트 자식 노드 추가 -->
+                    <div class="timeline-item">
+                        <div class="timeline-badge v1-1">v1.1</div>
+                        <div class="timeline-content">
+                            <h4>🎯 스마트 자식 노드 추가 시스템</h4>
+                            <p class="timeline-date">2025-11-09</p>
+                            
+                            <div class="prompt-box">
+                                <div class="prompt-header">
+                                    <i class="fas fa-user"></i> 사용자 프롬프트
+                                </div>
+                                <p class="prompt-text">
+                                    "노드 추가시 먼저 대상 원을 선택하게 하고 만약 노란색 원을 선택하면 
+                                    노란색 원들로 연결되게 하소서 계속 확장 가능"
+                                </p>
+                            </div>
+
+                            <div class="improvement-box">
+                                <h5>📈 개선 내용</h5>
+                                <ul>
+                                    <li>부모 노드 선택 시 색상 자동 상속 기능 추가</li>
+                                    <li>부모 노드 크기(소/중/대) 자동 상속</li>
+                                    <li>자식 노드가 부모 주변에 원형으로 자동 배치 (60도 간격)</li>
+                                    <li>부모-자식 간 연결선 자동 생성</li>
+                                    <li>무한 확장 가능한 트리 구조 지원</li>
+                                    <li>노드 선택 시 시각적 하이라이트 효과</li>
+                                    <li>ESC 키로 작업 취소 기능</li>
+                                </ul>
+                            </div>
+
+                            <div class="tech-detail">
+                                <strong>기술적 구현:</strong>
+                                <code>createChildNode()</code> 함수로 부모 노드 데이터 분석 →
+                                원형 배치 알고리즘 적용 → 색상/크기 상속 → 자동 연결
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 버전 1.0 - 초기 출시 -->
+                    <div class="timeline-item">
+                        <div class="timeline-badge v1-0">v1.0</div>
+                        <div class="timeline-content">
+                            <h4>🚀 초기 버전 출시</h4>
+                            <p class="timeline-date">2025-11-09</p>
+                            
+                            <div class="prompt-box">
+                                <div class="prompt-header">
+                                    <i class="fas fa-user"></i> 사용자 프롬프트 1
+                                </div>
+                                <p class="prompt-text">
+                                    "15년 경력의 AI 서비스 기획자로서, 마인드맵 기반 아이디어 대시보드 서비스에 대한 
+                                    3가지 개발 플랫폼별 PRD를 작성해드리겠습니다..."
+                                </p>
+                            </div>
+
+                            <div class="prompt-box">
+                                <div class="prompt-header">
+                                    <i class="fas fa-user"></i> 사용자 프롬프트 2
+                                </div>
+                                <p class="prompt-text">
+                                    "단순한 마인드맵이면 링크를 걸 수 있습니다."
+                                </p>
+                            </div>
+
+                            <div class="improvement-box">
+                                <h5>📈 초기 구현 내용</h5>
+                                <ul>
+                                    <li>기본 마인드맵 캔버스 구현 (SVG 기반 연결선)</li>
+                                    <li>드래그 앤 드롭 노드 이동 기능</li>
+                                    <li>더블클릭 노드 편집 기능</li>
+                                    <li><strong>링크 추가 기능</strong> - 노드에 외부 URL 연결</li>
+                                    <li>10가지 색상 팔레트 시스템</li>
+                                    <li>노드 크기 조절 (소/중/대)</li>
+                                    <li>컨텍스트 메뉴 (우클릭 메뉴)</li>
+                                    <li>키보드 단축키 (N, Del, Esc)</li>
+                                    <li>로컬 스토리지 저장/불러오기</li>
+                                    <li>3가지 템플릿 제공</li>
+                                    <li>반응형 디자인 (모바일 지원)</li>
+                                </ul>
+                            </div>
+
+                            <div class="tech-detail">
+                                <strong>핵심 아키텍처:</strong>
+                                상태 관리 시스템 + 이벤트 기반 인터랙션 + SVG 동적 렌더링
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 기획 단계 -->
+                    <div class="timeline-item">
+                        <div class="timeline-badge planning">PRD</div>
+                        <div class="timeline-content">
+                            <h4>📋 프로젝트 기획 단계</h4>
+                            <p class="timeline-date">2025-11-09</p>
+                            
+                            <div class="improvement-box">
+                                <h5>💡 기획 내용</h5>
+                                <ul>
+                                    <li>Lovable 플랫폼용 PRD 작성</li>
+                                    <li>젠스파크 AI 개발자용 PRD 작성</li>
+                                    <li>Cursor AI용 PRD 작성</li>
+                                    <li>타겟 사용자 페르소나 정의</li>
+                                    <li>기술 스택 선정 (Vanilla JS 채택)</li>
+                                    <li>UI/UX 가이드라인 수립</li>
+                                </ul>
+                            </div>
+
+                            <div class="tech-detail">
+                                <strong>개발 철학:</strong>
+                                "Beautiful & Simple" - 복잡한 기능을 직관적인 UX로
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="roadmap-section">
+                    <h4>🔮 향후 개발 계획</h4>
+                    <div class="roadmap-grid">
+                        <div class="roadmap-card">
+                            <h5>Phase 2</h5>
+                            <ul>
+                                <li>PNG/PDF 내보내기</li>
+                                <li>공유 링크 생성</li>
+                                <li>다크 모드</li>
+                                <li>언두/리두</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-card">
+                            <h5>Phase 3</h5>
+                            <ul>
+                                <li>클라우드 동기화</li>
+                                <li>실시간 협업</li>
+                                <li>버전 관리</li>
+                                <li>멀티플레이어</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-card">
+                            <h5>Phase 4</h5>
+                            <ul>
+                                <li>AI 아이디어 확장</li>
+                                <li>자동 분류</li>
+                                <li>스마트 검색</li>
+                                <li>요약 생성</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credits-section">
+                    <p><strong>개발 방식:</strong> AI-Powered Vibe Coding with Prompt Engineering</p>
+                    <p><strong>핵심 원칙:</strong> 사용자 요구사항 → AI 프롬프트 → 즉시 구현 → 점진적 개선</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 파일 업로드 (숨김) -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="js/main-supabase.js"></script>
+</body>
+</html>

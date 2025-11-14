@@ -1,14 +1,38 @@
-# 🚀 IdeaFlow - Firebase 통합 인터랙티브 마인드맵 대시보드
+# 🚀 IdeaFlow - 클라우드 동기화 마인드맵 대시보드
 
-![Version](https://img.shields.io/badge/version-1.3.6-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Development](https://img.shields.io/badge/dev-Vibe%20Coding-purple)
 ![Mobile](https://img.shields.io/badge/mobile-optimized-brightgreen)
 ![Firebase](https://img.shields.io/badge/firebase-integrated-orange)
+![Supabase](https://img.shields.io/badge/supabase-supported-green)
 ![Cloud Sync](https://img.shields.io/badge/cloud-sync-enabled-blue)
 ![Offline](https://img.shields.io/badge/offline-support-green)
 
-**바이브코딩(Vibe Coding)**으로 개발된 차세대 마인드맵 대시보드입니다. AI와의 대화를 통해 점진적으로 발전하며, **Firebase Realtime Database**를 통한 클라우드 저장, **멀티 디바이스 동기화**, **오프라인 지원**, **모바일 최적화** 기능을 제공합니다.
+**바이브코딩(Vibe Coding)**으로 개발된 차세대 마인드맵 대시보드입니다. AI와의 대화를 통해 점진적으로 발전하며, **Firebase** 및 **Supabase** 두 가지 백엔드 옵션을 지원합니다. 클라우드 저장, **멀티 디바이스 동기화**, **오프라인 지원**, **모바일 최적화** 기능을 제공합니다.
+
+## 🆕 Supabase Edition (v2.0.0)
+
+**Firebase 설정이 복잡하다면?** 이제 **Supabase**를 사용할 수 있습니다!
+
+### 왜 Supabase인가?
+- ✅ **더 간단한 설정** - Firebase보다 훨씬 쉬운 초기 설정
+- ✅ **PostgreSQL 기반** - 강력한 SQL 쿼리 지원
+- ✅ **오픈소스** - 벤더 종속성 낮음
+- ✅ **직관적인 대시보드** - 데이터 관리가 쉬움
+- ✅ **무료 플랜** - 작은 프로젝트에 충분
+
+### 빠른 시작 (Supabase)
+```bash
+# 1. Supabase 데모 페이지 열기
+open supabase-demo.html
+
+# 2. Supabase 프로젝트 생성 (supabase.com)
+# 3. URL과 Anon Key 입력
+# 4. Google/GitHub 로그인 테스트
+
+# 자세한 설정: SUPABASE_SETUP.md 참고
+```
 
 ## 🎯 프로젝트 비전
 
@@ -16,13 +40,23 @@
 
 ## 🌟 핵심 기능
 
-### ☁️ **Firebase 클라우드 통합** (v1.3.0 신규)
+### ☁️ **클라우드 백엔드 지원** (v2.0.0)
+두 가지 백엔드 옵션 중 선택:
+
+#### Firebase Edition (기존)
 - 🔄 **실시간 데이터베이스**: Firebase Realtime Database 연동
-- 📱 **멀티 디바이스 동기화**: 여러 기기에서 동일한 데이터 접근 가능
-- 🔒 **자동 백업**: Firebase 연결 실패시 LocalStorage로 자동 전환
-- ⚙️ **간편한 설정**: 웹 인터페이스에서 직접 Firebase 설정
+- 📱 **멀티 디바이스 동기화**: 여러 기기에서 동일한 데이터 접근
+- 🔒 **자동 백업**: 연결 실패 시 LocalStorage로 자동 전환
+- ⚙️ **간편한 설정**: 웹 인터페이스에서 직접 설정
+- 📊 **연결 상태 모니터링**: 실시간 연결 상태 확인
+
+#### Supabase Edition (신규! 🆕)
+- 🐘 **PostgreSQL 데이터베이스**: 강력한 SQL 쿼리 지원
+- ⚡ **실시간 동기화**: Firebase와 동일한 실시간 기능
+- 🔐 **Row Level Security**: 코드 없이 보안 규칙 설정
+- 🎯 **더 간단한 설정**: Firebase보다 쉬운 초기 설정
 - 🌐 **오프라인 지원**: 인터넷 연결 없이도 작업 가능
-- 📊 **연결 상태 모니터링**: 실시간 Firebase 연결 상태 확인
+- 📚 **풍부한 문서**: 상세한 설정 가이드 제공
 
 ### ✨ **인터랙티브 노드 관리**
 - 🎯 **스마트 자식 노드 추가**: 부모 노드 선택 시 색상과 크기 자동 상속
@@ -65,29 +99,50 @@
 
 ## 🚀 빠른 시작
 
-### 1. 웹에서 바로 사용하기
-```
-https://ai-mindmap-ideas.vercel.app
-```
+### 옵션 1: Supabase Edition (추천 ⭐)
 
-### 2. 로컬에서 실행하기
+**더 간단한 설정을 원한다면 Supabase를 선택하세요!**
+
 ```bash
-# 저장소 클론
+# 1. 저장소 클론
 git clone https://github.com/k1300k/AI-Mindmap-Ideas.git
 cd AI-Mindmap-Ideas
 
-# 로컬 서버 실행 (Python)
+# 2. 로컬 서버 실행
 python -m http.server 8000
+# 또는 npx serve .
 
-# 또는 Node.js
-npx serve .
+# 3. Supabase 데모 열기
+open http://localhost:8000/supabase-demo.html
+
+# 4. Supabase 설정 (자세한 내용은 SUPABASE_SETUP.md 참고)
+# - supabase.com에서 프로젝트 생성
+# - SQL Editor에서 supabase-schema.sql 실행
+# - URL과 Anon Key를 데모 페이지에 입력
 ```
 
-### 3. Firebase 설정하기
-1. 좌측 툴바의 **⚙️ Firebase 설정** 버튼을 클릭하면 화면 중앙에 설정 모달이 열립니다.
-2. **Firebase 콘솔**에서 프로젝트 생성
-3. **Realtime Database** 활성화
-4. 설정 정보를 입력하고 **저장 및 적용**
+### 옵션 2: Firebase Edition (기존)
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/k1300k/AI-Mindmap-Ideas.git
+cd AI-Mindmap-Ideas
+
+# 2. 로컬 서버 실행
+python -m http.server 8000
+# 또는 npx serve .
+
+# 3. Firebase 설정
+# - 좌측 툴바의 ⚙️ Firebase 설정 버튼 클릭
+# - Firebase 콘솔에서 프로젝트 생성
+# - Realtime Database 활성화
+# - 설정 정보 입력 및 저장
+```
+
+### 웹에서 바로 사용하기
+```
+https://ai-mindmap-ideas.vercel.app
+```
 
 ## 📖 상세 사용법
 
@@ -98,8 +153,9 @@ npx serve .
 4. **줌 조절**: 마우스 휠 또는 우측 줌 컨트롤 사용
 5. **캔버스 이동**: Space 키 + 드래그 또는 방향 키
 
-### Firebase 설정 가이드
-자세한 Firebase 설정 방법은 [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)를 참고하세요.
+### 클라우드 백엔드 설정 가이드
+- **Supabase 설정**: [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) 📚 상세 가이드
+- **Firebase 설정**: [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)
 
 ### 소셜 로그인 사용하기 (Google / GitHub)
 1. **Firebase 설정 완료**: Firebase Authentication이 활성화되어야 합니다
@@ -123,11 +179,14 @@ npx serve .
 
 ### 코어 기술
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **클라우드 데이터베이스**: Firebase Realtime Database
-- **저장소**: Firebase Realtime Database (Primary), LocalStorage API (Backup)
+- **클라우드 데이터베이스**: 
+  - Firebase Realtime Database (NoSQL)
+  - Supabase PostgreSQL (SQL) 🆕
+- **저장소**: Cloud Database (Primary), LocalStorage API (Backup)
 
 ### 라이브러리 & 서비스
-- **Firebase SDK**: 9.22.0
+- **Firebase SDK**: 9.22.0 (Firebase Edition)
+- **Supabase JS**: 2.x (Supabase Edition) 🆕
 - **html2canvas**: 1.4.1 (PNG 내보내기)
 - **Font Awesome**: 6.4.0 (아이콘)
 - **Google Fonts**: Noto Sans KR (폰트)
@@ -141,16 +200,20 @@ npx serve .
 
 ```
 ideaflow/
-├── index.html              # 메인 HTML 파일
+├── index.html                    # 메인 HTML (Firebase)
+├── supabase-demo.html            # Supabase 데모 🆕
 ├── css/
-│   └── style.css          # 스타일시트
+│   └── style.css                # 스타일시트
 ├── js/
-│   ├── main.js            # 핵심 JavaScript 로직
-│   ├── firebase-config.js   # Firebase 초기화 및 유틸리티
-│   └── firebase-config-manager.js # Firebase 설정 관리
-├── FIREBASE_SETUP.md      # Firebase 설정 가이드
-├── README.md             # 프로젝트 문서
-└── LICENSE               # MIT 라이선스
+│   ├── main.js                  # 핵심 JavaScript (Firebase)
+│   ├── firebase-config.js       # Firebase 설정
+│   ├── firebase-config-manager.js # Firebase UI 관리
+│   └── supabase-config.js       # Supabase 설정 🆕
+├── supabase-schema.sql          # Supabase DB 스키마 🆕
+├── FIREBASE_SETUP.md            # Firebase 설정 가이드
+├── SUPABASE_SETUP.md            # Supabase 설정 가이드 🆕
+├── README.md                    # 프로젝트 문서
+└── LICENSE                      # MIT 라이선스
 ```
 
 ## 📊 데이터 구조
@@ -186,7 +249,17 @@ ideaflow/
 
 ## 🔄 최근 업데이트
 
-### v1.4.0 (2025-11-14) - GitHub 로그인 추가 🔐
+### v2.0.0 (2025-11-14) - Supabase 지원 추가 🚀
+- ✅ **Supabase Edition 출시** - Firebase의 복잡성을 해결하는 대안
+- ✅ **PostgreSQL 기반 데이터베이스** - 강력한 SQL 쿼리 지원
+- ✅ **더 간단한 설정 프로세스** - Firebase보다 쉬운 초기 설정
+- ✅ **Row Level Security** - 코드 없이 보안 규칙 설정
+- ✅ **실시간 동기화** - Firebase와 동일한 실시간 기능
+- ✅ **Supabase 데모 페이지** - 빠른 테스트를 위한 데모 UI
+- ✅ **상세한 설정 가이드** - SUPABASE_SETUP.md 문서 제공
+- ✅ **Google/GitHub 로그인** - Supabase Authentication 통합
+
+### v1.4.0 (2025-11-14) - GitHub 로그인 추가 🔐 (Firebase)
 - ✅ **GitHub OAuth 인증 통합** - Firebase Authentication으로 GitHub 로그인 지원
 - ✅ **다중 인증 제공자** - Google과 GitHub 동시 지원
 - ✅ **향상된 로그인 UI** - 프로바이더별 카드 UI로 직관적인 인증 경험
@@ -243,12 +316,18 @@ ideaflow/
 
 ## 🧪 개발 로드맵
 
-### 예정된 기능
-- [x] **사용자 인증 시스템** - Google/GitHub 로그인 ✅ 완료 (v1.4.0)
+### 완료된 기능 ✅
+- [x] **사용자 인증 시스템** - Google/GitHub 로그인 (v1.4.0)
+- [x] **Supabase 지원** - Firebase 대안 제공 (v2.0.0)
+- [x] **실시간 동기화** - 클라우드 기반 데이터 동기화
+
+### 예정된 기능 🔮
+- [ ] **완전한 Supabase 마인드맵 앱** - 전체 기능 통합
 - [ ] **공유 및 협업** - 실시간 다중 사용자 편집
 - [ ] **고급 템플릿** - 더 많은 사전 정의 템플릿
 - [ ] **데이터 분석** - 마인드맵 사용 패턴 분석
 - [ ] **내보내기 개선** - PDF, SVG 등 다양한 형식 지원
+- [ ] **PocketBase 지원** - 로컬 호스팅 옵션 추가
 
 ## 🤝 기여하기
 
@@ -271,7 +350,7 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 
 **Made with ❤️ by AI-Powered Vibe Coding**
 
-*버전: 1.4.0 | 최종 업데이트: 2025-11-14*
+*버전: 2.0.0 | Supabase Edition | 최종 업데이트: 2025-11-14*
 
 ### 🌟 특별한 점
 - **AI 기반 개발**: Claude AI와의 협업으로 개발
