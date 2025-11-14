@@ -762,10 +762,8 @@ function attachEventListeners() {
     document.getElementById('showVersionHistoryBtn').addEventListener('click', showVersionHistoryModal);
     document.getElementById('closeVersionHistoryModal').addEventListener('click', closeVersionHistoryModal);
     
-    // Firebase 설정 모달
-    document.getElementById('firebaseConfigBtn').addEventListener('click', () => {
-        firebaseConfigManager.showConfigUI();
-    });
+    // Supabase 설정은 supabase-demo.html에서 처리
+    // Firebase 설정 버튼은 제거됨
     
     // 줌 컨트롤
     document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
@@ -1353,20 +1351,8 @@ function saveToLocalStorage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // 로컬 스토리지에도 저장 (백업용)
-    if (firebaseUtils.isInitialized()) {
-        firebaseUtils.saveToFirebase(data, 
-            function() {
-                console.log('JSON 파일 저장 완료 (Firebase)');
-            },
-            function(error) {
-                console.error('Firebase 저장 실패, LocalStorage로 대체:', error);
-                localStorage.setItem('mindmap-data', jsonString);
-            }
-        );
-    } else {
-        localStorage.setItem('mindmap-data', jsonString);
-    }
+    // LocalStorage에도 백업
+    localStorage.setItem('mindmap-data', jsonString);
     
     showToast('JSON 파일로 저장되었습니다');
 }
@@ -1440,30 +1426,10 @@ function loadMindmapData(data) {
     localStorage.setItem('mindmap-data', JSON.stringify(data));
 }
 
-// 페이지 로드 시 자동으로 Firebase에서 불러오기 (LocalStorage 백업)
+// 페이지 로드 시 자동으로 LocalStorage에서 불러오기
+// (로그인하면 loadFromSupabase()가 호출되어 클라우드 데이터를 불러옴)
 function autoLoadFromLocalStorage() {
-    // Firebase에서 먼저 시도
-    if (firebaseUtils.isInitialized()) {
-        firebaseUtils.loadFromFirebase('default',
-            function(data) {
-                if (data) {
-                    // Firebase에서 데이터를 찾은 경우
-                    console.log('Firebase에서 데이터 불러오기 성공');
-                    loadMindmapData(data);
-                } else {
-                    // Firebase에 데이터가 없는 경우 LocalStorage에서 시도
-                    loadFromLocalStorageBackup();
-                }
-            },
-            function(error) {
-                console.error('Firebase에서 불러오기 실패, LocalStorage로 대체:', error);
-                loadFromLocalStorageBackup();
-            }
-        );
-    } else {
-        // Firebase가 초기화되지 않은 경우 LocalStorage에서만 시도
-        loadFromLocalStorageBackup();
-    }
+    loadFromLocalStorageBackup();
 }
 
 // LocalStorage 백업에서 불러오기
