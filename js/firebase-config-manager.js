@@ -5,6 +5,7 @@ const firebaseConfigManager = {
     fbDatabase: null,
     fbAuth: null,
     googleUser: null,
+    githubUser: null,
     
     // 기본 Firebase 설정 (실제 사용시 변경 필요)
     defaultConfig: {
@@ -64,22 +65,51 @@ const firebaseConfigManager = {
                         <p>Firebase를 설정하면 마인드맵 데이터를 클라우드에 저장하고 여러 기기에서 동기화할 수 있습니다.</p>
                     </div>
 
-                    <!-- Google 계정 연결 센션 -->
-                    <div class="google-signin-section">
-                        <h4><i class="fab fa-google"></i> Google 계정 연결</h4>
-                        <div id="googleAuthStatus" class="auth-status">
-                            <div class="status-indicator">
-                                <span class="status-dot disconnected"></span>
-                                <span class="status-text">연결되지 않음</span>
+                    <!-- 계정 연결 섹션 -->
+                    <div class="auth-signin-section">
+                        <h4><i class="fas fa-user-circle"></i> 계정 연결</h4>
+                        
+                        <!-- Google 계정 -->
+                        <div class="auth-provider-card">
+                            <div class="provider-header">
+                                <i class="fab fa-google"></i>
+                                <span>Google</span>
                             </div>
+                            <div id="googleAuthStatus" class="auth-status">
+                                <div class="status-indicator">
+                                    <span class="status-dot disconnected"></span>
+                                    <span class="status-text">연결되지 않음</span>
+                                </div>
+                            </div>
+                            <button id="googleSignInBtn" class="auth-provider-btn google-signin-btn">
+                                <i class="fab fa-google"></i>
+                                <span>Google로 로그인</span>
+                            </button>
+                            <button id="googleSignOutBtn" class="btn btn-secondary btn-sm" style="display: none;">
+                                <i class="fas fa-sign-out-alt"></i> 로그아웃
+                            </button>
                         </div>
-                        <button id="googleSignInBtn" class="google-signin-btn">
-                            <i class="fab fa-google"></i>
-                            <span id="googleBtnText">Google로 로그인</span>
-                        </button>
-                        <button id="googleSignOutBtn" class="btn btn-secondary" style="display: none;">
-                            <i class="fas fa-sign-out-alt"></i> 로그아웃
-                        </button>
+
+                        <!-- GitHub 계정 -->
+                        <div class="auth-provider-card">
+                            <div class="provider-header">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </div>
+                            <div id="githubAuthStatus" class="auth-status">
+                                <div class="status-indicator">
+                                    <span class="status-dot disconnected"></span>
+                                    <span class="status-text">연결되지 않음</span>
+                                </div>
+                            </div>
+                            <button id="githubSignInBtn" class="auth-provider-btn github-signin-btn">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub로 로그인</span>
+                            </button>
+                            <button id="githubSignOutBtn" class="btn btn-secondary btn-sm" style="display: none;">
+                                <i class="fas fa-sign-out-alt"></i> 로그아웃
+                            </button>
+                        </div>
                     </div>
 
                     <div class="config-tabs">
@@ -204,6 +234,10 @@ const firebaseConfigManager = {
                                             <span class="status-label">Google 계정:</span>
                                             <span id="googleAuthStatusBadge" class="status-badge status-disconnected">연결 안됨</span>
                                         </div>
+                                        <div class="status-item">
+                                            <span class="status-label">GitHub 계정:</span>
+                                            <span id="githubAuthStatusBadge" class="status-badge status-disconnected">연결 안됨</span>
+                                        </div>
                                     </div>
                                     <div class="status-actions">
                                         <button class="btn btn-secondary" id="refreshStatusBtn">
@@ -231,6 +265,7 @@ const firebaseConfigManager = {
         // 이벤트 리스너 설정
         this.setupConfigEventListeners();
         this.setupGoogleSignIn();
+        this.setupGitHubSignIn();
         
         // 현재 설정값 로드
         this.loadCurrentConfig();
@@ -295,6 +330,27 @@ const firebaseConfigManager = {
 
         // 현재 인증 상태 확인
         this.updateGoogleAuthStatus();
+    },
+
+    // GitHub Sign-In 설정
+    setupGitHubSignIn: function() {
+        const githubSignInBtn = document.getElementById('githubSignInBtn');
+        const githubSignOutBtn = document.getElementById('githubSignOutBtn');
+
+        if (githubSignInBtn) {
+            githubSignInBtn.addEventListener('click', () => {
+                this.signInWithGitHub();
+            });
+        }
+
+        if (githubSignOutBtn) {
+            githubSignOutBtn.addEventListener('click', () => {
+                this.signOutFromGitHub();
+            });
+        }
+
+        // 현재 인증 상태 확인
+        this.updateGitHubAuthStatus();
     },
 
     // Google 로그인
@@ -368,6 +424,136 @@ const firebaseConfigManager = {
                 console.error('❌ Google 로그아웃 실패:', error);
                 showToast('로그아웃 실패: ' + error.message, 'error');
             });
+    },
+
+    // GitHub 로그인
+    signInWithGitHub: function() {
+        if (!this.fbAuth) {
+            showToast('❌ Firebase 인증이 초기화되지 않았습니다. Firebase 설정을 먼저 완료해주세요.', 'error', 5000);
+            return;
+        }
+
+        // Auth Domain 확인
+        const config = this.loadConfig();
+        if (!config.authDomain || config.authDomain === '') {
+            showToast('❌ Auth Domain이 설정되지 않았습니다. Firebase 설정에서 Auth Domain을 입력해주세요.', 'error', 5000);
+            return;
+        }
+
+        showToast('🔄 GitHub 로그인 중...', 'info', 2000);
+
+        const provider = new firebase.auth.GithubAuthProvider();
+        provider.addScope('read:user');
+        provider.addScope('user:email');
+        
+        this.fbAuth.signInWithPopup(provider)
+            .then((result) => {
+                this.githubUser = result.user;
+                this.updateGitHubAuthStatus();
+                this.updateHeaderAuthUI(result.user);
+                showToast(`✅ 환영합니다, ${result.user.displayName || result.user.email}님!`, 'success', 4000);
+                console.log('✅ GitHub 로그인 성공:', {
+                    name: result.user.displayName,
+                    email: result.user.email,
+                    uid: result.user.uid
+                });
+            })
+            .catch((error) => {
+                console.error('❌ GitHub 로그인 실패:', error);
+                
+                let errorMessage = 'GitHub 로그인 실패: ';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = '로그인 창이 닫혔습니다. 다시 시도해주세요.';
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMessage = '팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.';
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage = '인증되지 않은 도메인입니다. Firebase 콘솔에서 도메인을 추가해주세요.';
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    errorMessage = '이 이메일은 다른 로그인 방법으로 이미 사용 중입니다.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showToast(errorMessage, 'error', 6000);
+            });
+    },
+
+    // GitHub 로그아웃
+    signOutFromGitHub: function() {
+        if (!this.fbAuth) {
+            showToast('Firebase 인증이 초기화되지 않았습니다.', 'error');
+            return;
+        }
+
+        const userName = this.githubUser ? (this.githubUser.displayName || this.githubUser.email) : '사용자';
+
+        this.fbAuth.signOut()
+            .then(() => {
+                this.githubUser = null;
+                this.updateGitHubAuthStatus();
+                this.updateHeaderAuthUI(null);
+                showToast(`👋 ${userName}님, 로그아웃되었습니다.`, 'info', 3000);
+                console.log('✅ GitHub 로그아웃 성공');
+            })
+            .catch((error) => {
+                console.error('❌ GitHub 로그아웃 실패:', error);
+                showToast('로그아웃 실패: ' + error.message, 'error');
+            });
+    },
+
+    // GitHub 인증 상태 업데이트
+    updateGitHubAuthStatus: function() {
+        const githubSignInBtn = document.getElementById('githubSignInBtn');
+        const githubSignOutBtn = document.getElementById('githubSignOutBtn');
+        const githubAuthStatusBadge = document.getElementById('githubAuthStatusBadge');
+        const githubAuthStatus = document.getElementById('githubAuthStatus');
+
+        // 모달의 상태 표시 업데이트
+        if (githubAuthStatus) {
+            if (this.githubUser) {
+                const statusIndicator = githubAuthStatus.querySelector('.status-indicator');
+                if (statusIndicator) {
+                    statusIndicator.innerHTML = `
+                        <span class="status-dot connected"></span>
+                        <span class="status-text">
+                            ${this.githubUser.displayName || this.githubUser.email}님이 로그인됨
+                        </span>
+                    `;
+                }
+            } else {
+                const statusIndicator = githubAuthStatus.querySelector('.status-indicator');
+                if (statusIndicator) {
+                    statusIndicator.innerHTML = `
+                        <span class="status-dot disconnected"></span>
+                        <span class="status-text">연결되지 않음</span>
+                    `;
+                }
+            }
+        }
+
+        // 버튼 상태 업데이트
+        if (githubSignInBtn && githubSignOutBtn) {
+            if (this.githubUser) {
+                // 로그인 상태
+                githubSignInBtn.style.display = 'none';
+                githubSignOutBtn.style.display = 'inline-flex';
+            } else {
+                // 로그아웃 상태
+                githubSignInBtn.style.display = 'inline-flex';
+                githubSignOutBtn.style.display = 'none';
+            }
+        }
+
+        // 상태 탭의 배지 업데이트
+        if (githubAuthStatusBadge) {
+            if (this.githubUser) {
+                githubAuthStatusBadge.className = 'status-badge status-connected';
+                githubAuthStatusBadge.textContent = '연결됨 (' + (this.githubUser.displayName || this.githubUser.email) + ')';
+            } else {
+                githubAuthStatusBadge.className = 'status-badge status-disconnected';
+                githubAuthStatusBadge.textContent = '연결 안됨';
+            }
+        }
     },
 
     // Google 인증 상태 업데이트
@@ -705,17 +891,30 @@ const firebaseConfigManager = {
         } else {
             // 로그아웃 상태
             authUI.innerHTML = `
-                <button class="btn btn-primary btn-sm" id="headerSignInBtn">
-                    <i class="fab fa-google"></i> Google 로그인
-                </button>
+                <div class="header-signin-buttons">
+                    <button class="btn btn-primary btn-sm header-google-btn" id="headerGoogleSignInBtn">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button class="btn btn-secondary btn-sm header-github-btn" id="headerGitHubSignInBtn">
+                        <i class="fab fa-github"></i> GitHub
+                    </button>
+                </div>
             `;
             
             // 로그인 버튼 이벤트
             setTimeout(() => {
-                const signInBtn = document.getElementById('headerSignInBtn');
-                if (signInBtn) {
-                    signInBtn.addEventListener('click', () => {
+                const googleSignInBtn = document.getElementById('headerGoogleSignInBtn');
+                const githubSignInBtn = document.getElementById('headerGitHubSignInBtn');
+                
+                if (googleSignInBtn) {
+                    googleSignInBtn.addEventListener('click', () => {
                         this.signInWithGoogle();
+                    });
+                }
+                
+                if (githubSignInBtn) {
+                    githubSignInBtn.addEventListener('click', () => {
+                        this.signInWithGitHub();
                     });
                 }
             }, 100);
@@ -775,16 +974,36 @@ function initializeFirebase() {
         // Firebase Auth 상태 변경 리스너 설정
         firebaseConfigManager.fbAuth.onAuthStateChanged((user) => {
             if (user) {
-                // 로그인 상태
-                firebaseConfigManager.googleUser = user;
-                console.log('✅ 사용자 로그인됨:', user.displayName || user.email);
-                firebaseConfigManager.updateGoogleAuthStatus();
+                // 로그인 상태 - provider 확인
+                const providerId = user.providerData && user.providerData.length > 0 
+                    ? user.providerData[0].providerId 
+                    : null;
+                
+                if (providerId === 'google.com') {
+                    firebaseConfigManager.googleUser = user;
+                    firebaseConfigManager.githubUser = null;
+                    console.log('✅ Google 사용자 로그인됨:', user.displayName || user.email);
+                    firebaseConfigManager.updateGoogleAuthStatus();
+                } else if (providerId === 'github.com') {
+                    firebaseConfigManager.githubUser = user;
+                    firebaseConfigManager.googleUser = null;
+                    console.log('✅ GitHub 사용자 로그인됨:', user.displayName || user.email);
+                    firebaseConfigManager.updateGitHubAuthStatus();
+                } else {
+                    // 기타 provider 또는 알 수 없는 경우
+                    firebaseConfigManager.googleUser = user;
+                    console.log('✅ 사용자 로그인됨:', user.displayName || user.email);
+                    firebaseConfigManager.updateGoogleAuthStatus();
+                }
+                
                 firebaseConfigManager.updateHeaderAuthUI(user);
             } else {
                 // 로그아웃 상태
                 firebaseConfigManager.googleUser = null;
+                firebaseConfigManager.githubUser = null;
                 console.log('ℹ️ 사용자 로그아웃됨');
                 firebaseConfigManager.updateGoogleAuthStatus();
+                firebaseConfigManager.updateGitHubAuthStatus();
                 firebaseConfigManager.updateHeaderAuthUI(null);
             }
         });
