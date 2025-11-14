@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaFlow - Supabase Edition (Demo)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 4px solid #f57c00;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .auth-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-google:hover {
+            background: #357ae8;
+        }
+
+        .btn-github {
+            background: #333;
+            color: white;
+        }
+
+        .btn-github:hover {
+            background: #24292e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .test-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .test-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #d32f2f;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center;">
+            <span class="badge">🚀 Supabase Edition</span>
+        </div>
+        <h1>🎨 IdeaFlow</h1>
+        <p class="subtitle">Supabase 연동 데모</p>
+
+        <!-- 상태 표시 -->
+        <div id="statusMessage" class="status info">
+            ℹ️ Supabase 설정을 시작하세요
+        </div>
+
+        <!-- Supabase 설정 -->
+        <div id="configSection">
+            <div class="form-group">
+                <label for="supabaseUrl">Supabase Project URL</label>
+                <input 
+                    type="url" 
+                    id="supabaseUrl" 
+                    placeholder="https://your-project.supabase.co"
+                    value="">
+            </div>
+
+            <div class="form-group">
+                <label for="supabaseKey">Supabase Anon Key</label>
+                <input 
+                    type="password" 
+                    id="supabaseKey" 
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    value="">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="saveConfig()">💾 설정 저장</button>
+                <button class="btn-secondary" onclick="clearConfig()">🗑️ 설정 삭제</button>
+            </div>
+        </div>
+
+        <!-- 인증 섹션 -->
+        <div class="auth-section" id="authSection" style="display: none;">
+            <h3 style="margin-bottom: 15px; color: #333;">🔐 로그인</h3>
+            
+            <!-- 로그인 전 -->
+            <div id="authButtons" class="auth-buttons">
+                <button class="btn-google" onclick="signInWithGoogle()">
+                    Google
+                </button>
+                <button class="btn-github" onclick="signInWithGitHub()">
+                    GitHub
+                </button>
+            </div>
+
+            <!-- 로그인 후 -->
+            <div id="userInfo" style="display: none;">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">사용자</div>
+                        <div class="user-email" id="userEmail">user@example.com</div>
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="signOut()" style="width: 100%;">
+                    🚪 로그아웃
+                </button>
+            </div>
+        </div>
+
+        <!-- 테스트 섹션 -->
+        <div class="test-section" id="testSection" style="display: none;">
+            <h3>✅ 연결 테스트</h3>
+            <button class="btn-primary" onclick="testConnection()" style="width: 100%;">
+                🔌 연결 테스트
+            </button>
+        </div>
+
+        <!-- 추가 정보 -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #f0f0f0; text-align: center; font-size: 12px; color: #999;">
+            <p>
+                📚 설정 가이드: 
+                <a href="SUPABASE_SETUP.md" class="link" target="_blank">SUPABASE_SETUP.md</a>
+            </p>
+            <p style="margin-top: 8px;">
+                🎯 전체 앱: 
+                <a href="index.html" class="link">Firebase 버전</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <script>
+        // 페이지 로드 시 저장된 설정 불러오기
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedConfig();
+            checkAuthState();
+        });
+
+        // 저장된 설정 불러오기
+        function loadSavedConfig() {
+            const config = window.SupabaseClient.loadConfig();
+            if (config.url && config.anonKey) {
+                document.getElementById('supabaseUrl').value = config.url;
+                document.getElementById('supabaseKey').value = config.anonKey;
+                showStatus('✅ 저장된 설정을 불러왔습니다', 'success');
+                showAuthSection();
+            }
+        }
+
+        // 설정 저장
+        function saveConfig() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+
+            if (!url || !key) {
+                showStatus('❌ URL과 Anon Key를 모두 입력해주세요', 'error');
+                return;
+            }
+
+            try {
+                window.SupabaseClient.saveConfig(url, key);
+                window.SupabaseClient.initialize();
+                showStatus('✅ Supabase 설정이 저장되었습니다!', 'success');
+                showAuthSection();
+                showTestSection();
+            } catch (error) {
+                showStatus('❌ 설정 저장 실패: ' + error.message, 'error');
+            }
+        }
+
+        // 설정 삭제
+        function clearConfig() {
+            if (confirm('Supabase 설정을 삭제하시겠습니까?')) {
+                window.SupabaseClient.clearConfig();
+                document.getElementById('supabaseUrl').value = '';
+                document.getElementById('supabaseKey').value = '';
+                showStatus('🗑️ 설정이 삭제되었습니다', 'info');
+                hideAuthSection();
+                hideTestSection();
+            }
+        }
+
+        // Google 로그인
+        async function signInWithGoogle() {
+            try {
+                showStatus('🔐 Google 로그인 중...', 'info');
+                await window.SupabaseClient.signInWithGoogle();
+            } catch (error) {
+                showStatus('❌ 로그인 실패: ' + window.SupabaseClient.formatError(error), 'error');
+            }
+        }
+
+        // GitHub 로그인
+        async function signInWithGitHub() {
+            try {
+                showStatus('🔐 GitHub 로그인 중...', 'info');
+                await window.SupabaseClient.signInWithGitHub();
+            } catch (error) {
+                showStatus('❌ 로그인 실패: ' + window.SupabaseClient.formatError(error), 'error');
+            }
+        }
+
+        // 로그아웃
+        async function signOut() {
+            try {
+                await window.SupabaseClient.signOut();
+                showStatus('✅ 로그아웃되었습니다', 'success');
+                updateUIForLoggedOut();
+            } catch (error) {
+                showStatus('❌ 로그아웃 실패: ' + error.message, 'error');
+            }
+        }
+
+        // 인증 상태 확인
+        async function checkAuthState() {
+            window.SupabaseClient.onAuthStateChange(async (event, session) => {
+                console.log('인증 상태 변경:', event, session);
+                
+                if (session?.user) {
+                    updateUIForLoggedIn(session.user);
+                    showStatus('✅ ' + session.user.email + ' 로그인 완료!', 'success');
+                } else {
+                    updateUIForLoggedOut();
+                }
+            });
+        }
+
+        // 로그인 후 UI 업데이트
+        function updateUIForLoggedIn(user) {
+            document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            
+            const userName = user.user_metadata?.full_name || user.email.split('@')[0];
+            const userEmail = user.email;
+            const userInitial = userName.charAt(0).toUpperCase();
+            
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userEmail').textContent = userEmail;
+            document.getElementById('userAvatar').textContent = userInitial;
+        }
+
+        // 로그아웃 후 UI 업데이트
+        function updateUIForLoggedOut() {
+            document.getElementById('authButtons').style.display = 'flex';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        // 연결 테스트
+        async function testConnection() {
+            try {
+                showStatus('🔌 연결 테스트 중...', 'info');
+                const user = await window.SupabaseClient.getCurrentUser();
+                
+                if (user) {
+                    showStatus('✅ Supabase 연결 성공! 사용자: ' + user.email, 'success');
+                } else {
+                    showStatus('⚠️ 연결은 성공했지만 로그인이 필요합니다', 'warning');
+                }
+            } catch (error) {
+                showStatus('❌ 연결 실패: ' + error.message, 'error');
+            }
+        }
+
+        // 상태 메시지 표시
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        // 인증 섹션 표시
+        function showAuthSection() {
+            document.getElementById('authSection').style.display = 'block';
+        }
+
+        // 인증 섹션 숨김
+        function hideAuthSection() {
+            document.getElementById('authSection').style.display = 'none';
+        }
+
+        // 테스트 섹션 표시
+        function showTestSection() {
+            document.getElementById('testSection').style.display = 'block';
+        }
+
+        // 테스트 섹션 숨김
+        function hideTestSection() {
+            document.getElementById('testSection').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
